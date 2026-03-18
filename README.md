@@ -88,7 +88,7 @@ npm run dev
 
 Open http://localhost:5173.
 
-**The site always uses your real league only after you run ingest.** It copies `data/details.json` (created by `ingest.py`) into `web/public/data/`. If that file is missing, the UI falls back to **demo sample data** and shows a yellow banner.
+**The site always uses your real league only after you run ingest.** It copies `data/*.json` (created by `ingest.py`) into `web/public/league-data/`. If that file is missing, the UI falls back to **demo sample data** and shows a yellow banner.
 
 ### Wrong teams / not your league?
 

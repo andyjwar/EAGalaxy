@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/TCLOT/',
+  /** GitHub Actions sets this to /REPO_NAME/ so Pages URL matches any repo name */
+  base: process.env.VITE_BASE_PATH || '/TCLOT/',
   plugins: [react()],
 })

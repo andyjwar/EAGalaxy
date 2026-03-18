@@ -28,6 +28,8 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: Install & build
         working-directory: web
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: |
           npm ci
           npm run build

@@ -5,7 +5,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '../../data');
-const dest = join(__dirname, '../public/data');
+/** Not named `data/` — root .gitignore has `data/` and would exclude `public/data` from Pages deploys */
+const dest = join(__dirname, '../public/league-data');
 const ingestedDetails = join(dataDir, 'details.json');
 const sampleDetails = join(__dirname, '../sample-details.json');
 const bootstrapFpl = join(dataDir, 'bootstrap_fpl.json');
@@ -18,7 +19,7 @@ if (existsSync(ingestedDetails)) {
       copyFileSync(join(dataDir, f), join(dest, f));
     }
   }
-  console.log('League data copied from data/ → public/data/ (from ingest.py).');
+  console.log('League data copied from data/ → public/league-data/ (from ingest.py).');
 } else if (existsSync(sampleDetails)) {
   copyFileSync(sampleDetails, join(dest, 'details.json'));
   console.warn(

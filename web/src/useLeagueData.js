@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const DATA_BASE = `${import.meta.env.BASE_URL}data`;
+const DATA_BASE = `${import.meta.env.BASE_URL}league-data`;
 const FORM_LAST_N = 7;
 
 async function fetchJSON(path) {
