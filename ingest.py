@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""
+FPL Draft League Data Ingestion
+
+Fetches all available data from draft.premierleague.com for your league and
+saves it locally for analysis. No authentication required for public league data.
+"""
+
+import json
+import os
+import sys
+from pathlib import Path
+
+import requests
+
+# API base URLs
+DRAFT_API = "https://draft.premierleague.com/api"
+FPL_API = "https://fantasy.premierleague.com/api"
+
+
+def get_league_id() -> int:
+    """Get league ID from environment or command-line argument."""
+    league_id = os.environ.get("LEAGUE_ID")
+    if league_id:
+        return int(league_id)
+    if len(sys.argv) > 1:
+        return int(sys.argv[1])
+    print(
+        "Usage: python ingest.py <LEAGUE_ID>\n"
+        "   or: LEAGUE_ID=12345 python ingest.py\n\n"
+        "Find your league ID in the URL when viewing your league:\n"
+        "  draft.premierleague.com/league/YOUR_LEAGUE_ID"
+    )
+    sys.exit(1)
+
+
+def fetch_json(url: str) -> dict:
+    """Fetch JSON from URL, raising on error."""
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def ingest_league(league_id: int, output_dir: Path) -> None:
+    """Fetch all FPL Draft data for a league and save to output_dir."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    endpoints = [
+        ("details", f"{DRAFT_API}/league/{league_id}/details"),
+        ("element_status", f"{DRAFT_API}/league/{league_id}/element-status"),
+        ("transactions", f"{DRAFT_API}/draft/league/{league_id}/transactions"),
+        ("bootstrap_draft", f"{DRAFT_API}/bootstrap-static"),
+        ("bootstrap_fpl", f"{FPL_API}/bootstrap-static"),
+    ]
+
+    for name, url in endpoints:
+        print(f"Fetching {name}...")
+        try:
+            data = fetch_json(url)
+            out_file = output_dir / f"{name}.json"
+            with open(out_file, "w") as f:
+                json.dump(data, f, indent=2)
+            print(f"  -> saved to {out_file}")
+        except requests.HTTPError as e:
+            print(f"  -> failed: {e}")
+        except Exception as e:
+            print(f"  -> error: {e}")
+
+    # Optional: fetch fixtures for match data (from main FPL API)
+    print("Fetching fixtures...")
+    try:
+        fixtures = fetch_json(f"{FPL_API}/fixtures")
+        with open(output_dir / "fixtures.json", "w") as f:
+            json.dump(fixtures, f, indent=2)
+        print(f"  -> saved to {output_dir / 'fixtures.json'}")
+    except Exception as e:
+        print(f"  -> error: {e}")
+
+    print("\nIngestion complete. Data saved to", output_dir)
+
+
+def main():
+    league_id = get_league_id()
+    output_dir = Path(__file__).parent / "data"
+    ingest_league(league_id, output_dir)
+
+
+if __name__ == "__main__":
+    main()
