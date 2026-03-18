@@ -535,7 +535,9 @@ function App() {
               </div>
             ) : (
               <p className="muted muted--tight">
-                Run a full build to generate <code>waiver-in-tenure-top.json</code>.
+                Run a full build to generate <code>pickups-tenure.json</code>. If data loads
+                locally but not on the live site, try disabling ad blockers (some block
+                &quot;waiver&quot; in URLs — we use neutral filenames now).
               </p>
             )}
           </section>
@@ -786,7 +788,7 @@ function App() {
               </ol>
             ) : (
               <p className="muted muted--tight">
-                Run <code>npm run dev</code> / build so <code>waiver-in-tenure-top.json</code> is
+                Run <code>npm run dev</code> / build so <code>pickups-tenure.json</code> is
                 generated (needs <code>transactions.json</code> + finished GWs).
               </p>
             )}

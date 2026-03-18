@@ -69,6 +69,13 @@ jobs:
           fi
           PNGS=$(find web/dist/team-logos -maxdepth 1 -name '*.png' 2>/dev/null | wc -l | tr -d ' ')
           echo "Team logo PNGs in build: $PNGS (commit web/public/team-logos/*.png to ship logos)"
+          if [ -f web/dist/league-data/pickups-tenure.json ]; then
+            N=$(node -e "const j=require('./web/dist/league-data/pickups-tenure.json');console.log((j.teamWaiverInTotals||[]).length)" 2>/dev/null || echo 0)
+            echo "pickups-tenure.json team rows: $N"
+            if [ "$N" -eq 0 ] && [ -f web/dist/league-data/transactions.json ]; then
+              echo "::warning::pickups-tenure has no team totals but transactions exist — check waiver analytics build logs"
+            fi
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist

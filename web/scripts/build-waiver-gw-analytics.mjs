@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Fetches FPL event/live per GW, then:
- * 1) waiver-out-gw-scores.json — dropped player’s pts in waiver GW (existing)
- * 2) waiver-in-tenure-top.json — top 10 player–team pairs by FPL pts scored
+ * 1) drops-gw-live.json — dropped player’s pts in waiver GW (neutral name: ad blockers often block "waiver" in URLs)
+ * 2) pickups-tenure.json — top 10 pickup pairs + team tenure totals
  *    from each waiver-in until that player left the squad (same entry).
  */
 import { readFileSync, writeFileSync, existsSync } from 'fs'
@@ -13,8 +13,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const leagueDataDir = join(__dirname, '../public/league-data')
 const txPath = join(leagueDataDir, 'transactions.json')
 const detailsPath = join(leagueDataDir, 'details.json')
-const outWaiverOut = join(leagueDataDir, 'waiver-out-gw-scores.json')
-const outWaiverInTop = join(leagueDataDir, 'waiver-in-tenure-top.json')
+const outWaiverOut = join(leagueDataDir, 'drops-gw-live.json')
+const outWaiverInTop = join(leagueDataDir, 'pickups-tenure.json')
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms))
@@ -248,11 +248,21 @@ async function main() {
     t.totalWaiverInPoints += v.totalPointsForTeam
     t.distinctPlayers += 1
   }
-  const teamWaiverInTotals = [...byEntryTeam.values()].sort(
-    (a, b) =>
-      b.totalWaiverInPoints - a.totalWaiverInPoints ||
-      a.entry - b.entry
+  const fplEntryToLeagueId = new Map(
+    (details.league_entries || [])
+      .filter((e) => e.entry_id != null && e.id != null)
+      .map((e) => [Number(e.entry_id), Number(e.id)])
   )
+  const teamWaiverInTotals = [...byEntryTeam.values()]
+    .map((t) => ({
+      ...t,
+      leagueEntry: fplEntryToLeagueId.get(t.entry) ?? undefined,
+    }))
+    .sort(
+      (a, b) =>
+        b.totalWaiverInPoints - a.totalWaiverInPoints ||
+        a.entry - b.entry
+    )
 
   writeFileSync(
     outWaiverInTop,
@@ -270,7 +280,7 @@ async function main() {
   )
 
   console.log(
-    `build-waiver-gw-analytics: waiver-out ${rowsOut.length} rows; top-10 + ${teamWaiverInTotals.length} team waiver-in totals → waiver-in-tenure-top.json`
+    `build-waiver-gw-analytics: drops-gw-live ${rowsOut.length} rows; pickups-tenure top-10 + ${teamWaiverInTotals.length} team totals`
   )
 }
 

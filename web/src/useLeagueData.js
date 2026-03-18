@@ -23,6 +23,15 @@ async function fetchJSONOptional(path) {
   }
 }
 
+/** Try paths in order (ad blockers often block URLs containing "waiver"). */
+async function fetchFirstOptional(paths) {
+  for (const p of paths) {
+    const j = await fetchJSONOptional(p);
+    if (j != null && typeof j === 'object') return j;
+  }
+  return null;
+}
+
 /** element_type 1 = GKP — excluded: cheap keeper churn dominates waivers but isn’t useful for this list */
 const OUTFIELD_TYPES = new Set([2, 3, 4]);
 /** FPL element IDs omitted from this list (e.g. suspected bad/misleading waiver attribution). */
@@ -95,8 +104,11 @@ export function useLeagueData() {
           await Promise.all([
             fetchJSONOptional('transactions.json'),
             fetchJSONOptional('fpl-mini.json'),
-            fetchJSONOptional('waiver-out-gw-scores.json'),
-            fetchJSONOptional('waiver-in-tenure-top.json'),
+            fetchFirstOptional([
+              'drops-gw-live.json',
+              'waiver-out-gw-scores.json',
+            ]),
+            fetchFirstOptional(['pickups-tenure.json', 'waiver-in-tenure-top.json']),
           ]);
         let teamLogoMap = {};
         try {
@@ -486,16 +498,18 @@ function processLeagueData(raw, extras = {}) {
     }
   );
 
-  const waiverInByTeamMap = new Map(
-    (extras.waiverInTenureTop?.teamWaiverInTotals || []).map((t) => [
-      t.entry,
-      t,
-    ])
+  const totals = extras.waiverInTenureTop?.teamWaiverInTotals || [];
+  const waiverInByFplEntry = new Map(totals.map((t) => [t.entry, t]));
+  const waiverInByLeagueEntry = new Map(
+    totals.filter((t) => t.leagueEntry != null).map((t) => [t.leagueEntry, t])
   );
   const waiverInPointsByTeam = sortedByRank
     .map((s) => {
-      const entryId = teams[s.league_entry]?.entry_id ?? s.league_entry;
-      const o = waiverInByTeamMap.get(entryId);
+      const fplId = teams[s.league_entry]?.entry_id ?? s.league_entry;
+      const o =
+        waiverInByLeagueEntry.get(s.league_entry) ??
+        waiverInByFplEntry.get(fplId) ??
+        waiverInByFplEntry.get(s.league_entry);
       const totalWaiverInPoints = o?.totalWaiverInPoints ?? 0;
       const distinctWaiverPlayers = o?.distinctPlayers ?? 0;
       const averageWaiverInPerPlayer =
