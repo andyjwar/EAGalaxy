@@ -546,7 +546,7 @@ function App() {
                         <td className="col-rank">
                           {row.rank === 8 ? (
                             <span role="img" className="standings-rank-8" aria-label="8">
-                              💩
+                              🧩
                             </span>
                           ) : (
                             row.rank
