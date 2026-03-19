@@ -8,8 +8,8 @@ import { TeamAvatar } from './TeamAvatar'
 import { LiveScores } from './LiveScores'
 import './App.css'
 
-const LEAGUE_TITLE = 'The Tri-Continental League of Titans'
-const LEAGUE_SEASON_SUB = 'The 25/26 Season'
+const LEAGUE_TITLE = 'The Mostly Ex-FOS Championship'
+const LEAGUE_SEASON_SUB = '2025/26'
 
 function FormCircles({ form }) {
   return (
@@ -54,6 +54,15 @@ function PlayerKit({ shirtUrl, badgeUrl, teamShort }) {
 
 /** Single processed-trade card (GW, date, managers, pairs + tenure points). */
 function TradeCardArticle({ trade, teamLogoMap }) {
+  const pairs = trade.pairs || []
+  const offeredPtsTotal = pairs.reduce(
+    (s, p) => s + (Number(p.offeredLeg?.totalPoints) || 0),
+    0,
+  )
+  const receivedPtsTotal = pairs.reduce(
+    (s, p) => s + (Number(p.receivedLeg?.totalPoints) || 0),
+    0,
+  )
   return (
     <article className="trade-card">
       <div className="trade-card__head">
@@ -68,27 +77,45 @@ function TradeCardArticle({ trade, teamLogoMap }) {
           </time>
         ) : null}
       </div>
-      <div className="trade-card__managers">
-        <div className="trade-card__mgr">
-          <TeamAvatar
-            entryId={trade.offeredLeagueEntry ?? trade.offeredFplEntry}
-            name={trade.offeredTeamName}
-            size="sm"
-            logoMap={teamLogoMap}
-          />
-          <span className="trade-card__mgr-name">{trade.offeredTeamName}</span>
+      <div className="trade-card__managers-block">
+        <div className="trade-card__managers">
+          <div className="trade-card__mgr">
+            <TeamAvatar
+              entryId={trade.offeredLeagueEntry ?? trade.offeredFplEntry}
+              name={trade.offeredTeamName}
+              size="sm"
+              logoMap={teamLogoMap}
+            />
+            <span className="trade-card__mgr-name">{trade.offeredTeamName}</span>
+          </div>
+          <span className="trade-card__vs" aria-hidden>
+            ⇄
+          </span>
+          <div className="trade-card__mgr">
+            <TeamAvatar
+              entryId={trade.receivedLeagueEntry ?? trade.receivedFplEntry}
+              name={trade.receivedTeamName}
+              size="sm"
+              logoMap={teamLogoMap}
+            />
+            <span className="trade-card__mgr-name">{trade.receivedTeamName}</span>
+          </div>
         </div>
-        <span className="trade-card__vs" aria-hidden>
-          ⇄
-        </span>
-        <div className="trade-card__mgr">
-          <TeamAvatar
-            entryId={trade.receivedLeagueEntry ?? trade.receivedFplEntry}
-            name={trade.receivedTeamName}
-            size="sm"
-            logoMap={teamLogoMap}
-          />
-          <span className="trade-card__mgr-name">{trade.receivedTeamName}</span>
+        <div
+          className="trade-card__pts-summary"
+          aria-label="Total tenure points for players each side acquired in this trade"
+        >
+          <span className="trade-card__pts-summary-side tabular">
+            <strong>{offeredPtsTotal}</strong>
+            <span className="muted trade-card__pts-summary-label"> pts</span>
+          </span>
+          <span className="trade-card__vs trade-card__vs--summary" aria-hidden>
+            ·
+          </span>
+          <span className="trade-card__pts-summary-side trade-card__pts-summary-side--end tabular">
+            <strong>{receivedPtsTotal}</strong>
+            <span className="muted trade-card__pts-summary-label"> pts</span>
+          </span>
         </div>
       </div>
       {(trade.pairs || []).map((pair, pidx) => (

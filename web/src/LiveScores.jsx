@@ -68,7 +68,7 @@ function PicksTable({ rows }) {
                     badgeUrl={r.badgeUrl}
                     teamShort={r.teamShort}
                   />
-                  <div>
+                  <div className="live-player-text">
                     <div
                       className="live-player-name"
                       title={`${r.web_name} · #${r.element}${r.teamName ? ` · ${r.teamName}` : ''}`}

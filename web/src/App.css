@@ -601,14 +601,50 @@
   font-size: 0.75rem;
 }
 
+.trade-card__managers-block {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--fm-border);
+}
+
 .trade-card__managers {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--fm-border);
+}
+
+.trade-card__pts-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+}
+
+.trade-card__pts-summary-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-card__pts-summary-side--end {
+  text-align: right;
+}
+
+.trade-card__pts-summary-label {
+  font-weight: 500;
+  font-size: 0.72rem;
+}
+
+.trade-card__pts-summary strong {
+  font-size: 0.95rem;
+}
+
+.trade-card__vs--summary {
+  font-size: 0.85rem;
+  align-self: center;
+  opacity: 0.45;
 }
 
 .trade-card__mgr {
@@ -1055,6 +1091,12 @@ button.live-fixture-banner--toggle {
   min-width: 0;
 }
 
+/* Lets long names ellipsis inside flex; keep row height stable */
+.live-player-text {
+  min-width: 0;
+  flex: 1;
+}
+
 .live-kit-img {
   width: 28px;
   height: 36px;
@@ -1077,7 +1119,11 @@ button.live-fixture-banner--toggle {
 
 .live-player-name {
   font-weight: 600;
-  line-height: 1.2;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .live-player-club {
