@@ -310,31 +310,76 @@
 
 .gw-fixture-list--tight .gw-fixture-teams {
   font-size: 0.8rem;
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 4px;
 }
 
 .gw-fixture-row:last-child {
   border-bottom: none;
 }
 
+/* Logos on the outside; names in flexible columns hugging the centre (v / score) */
 .gw-fixture-teams {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  column-gap: 10px;
+  row-gap: 6px;
   font-size: 0.88rem;
 }
 
-.gw-fixture-side {
+.gw-fixture-avatar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 0;
+  flex-shrink: 0;
 }
 
-.gw-fixture-side--end {
+.gw-fixture-avatar--home {
+  grid-column: 1;
+}
+
+.gw-fixture-avatar--away {
+  grid-column: 5;
   justify-content: flex-end;
+}
+
+.gw-fixture-name-cell {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0 4px;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.gw-fixture-name-cell--home {
+  grid-column: 2;
   text-align: right;
+  justify-content: flex-end;
+}
+
+.gw-fixture-name-cell--away {
+  grid-column: 4;
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.gw-fixture-name-text {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.gw-fixture-rank {
+  font-size: 0.88em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.gw-fixture-mid {
+  grid-column: 3;
+  justify-self: center;
+  text-align: center;
 }
 
 .gw-fixture-score {
@@ -347,6 +392,16 @@
   color: var(--fm-text);
   font-weight: 600;
   font-size: 0.85rem;
+}
+
+.gw-fixture-name--winner {
+  color: var(--fm-win);
+  font-weight: 600;
+}
+
+.gw-fixture-name--winner .gw-fixture-rank {
+  color: inherit;
+  opacity: 0.9;
 }
 
 /* Waiver list */

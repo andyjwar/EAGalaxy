@@ -6,10 +6,9 @@ import {
 } from './useLeagueData'
 import { TeamAvatar } from './TeamAvatar'
 import { LiveScores } from './LiveScores'
-import { PlayOffBracket } from './PlayOffBracket'
 import './App.css'
 
-const LEAGUE_TITLE = 'The Mostly Ex-FOS Championship'
+const LEAGUE_TITLE = 'The Tri-Continental League of Titans'
 const LEAGUE_SEASON_SUB = '2025/26'
 
 function FormCircles({ form }) {
@@ -175,7 +174,7 @@ function App() {
   const [waiverOutTeamFilter, setWaiverOutTeamFilter] = useState('all')
   const [waiverOutGwFilter, setWaiverOutGwFilter] = useState('all')
   const [waiverGwTableMode, setWaiverGwTableMode] = useState('out')
-  const [dashboardView, setDashboardView] = useState('standings') // standings | playoff | waivers | trades | live
+  const [dashboardView, setDashboardView] = useState('standings') // standings | waivers | trades | live
   const [liveGw, setLiveGw] = useState(null)
 
   const waiverOutTeamOptions = useMemo(() => {
@@ -299,27 +298,57 @@ function App() {
   const liveGameweek =
     Number(liveGw ?? previousGameweek ?? nextEvent ?? 1) || 1
 
-  const renderGwFixture = (fx, i) => (
-    <li key={`${fx.event}-${fx.homeId}-${fx.awayId}-${i}`} className="gw-fixture-row">
-      <div className="gw-fixture-teams">
-        <span className="gw-fixture-side">
-          <TeamAvatar entryId={fx.homeId} name={fx.homeName} size="sm" logoMap={teamLogoMap} />
-          <span className={fx.homePts > fx.awayPts ? 'fw-600' : ''}>{fx.homeName}</span>
-        </span>
-        {fx.homePts != null ? (
-          <span className="gw-fixture-score">
-            {fx.homePts} – {fx.awayPts}
+  const rankByEntryId = useMemo(() => {
+    const m = new Map()
+    for (const row of tableRows || []) {
+      m.set(row.league_entry, row.rank)
+    }
+    return m
+  }, [tableRows])
+
+  const renderGwFixture = (fx, i) => {
+    const homeRank = rankByEntryId.get(fx.homeId)
+    const awayRank = rankByEntryId.get(fx.awayId)
+    const homeWin =
+      fx.homePts != null && fx.awayPts != null && fx.homePts > fx.awayPts
+    const awayWin =
+      fx.homePts != null && fx.awayPts != null && fx.awayPts > fx.homePts
+    return (
+      <li key={`${fx.event}-${fx.homeId}-${fx.awayId}-${i}`} className="gw-fixture-row">
+        <div className="gw-fixture-teams">
+          <span className="gw-fixture-avatar gw-fixture-avatar--home">
+            <TeamAvatar entryId={fx.homeId} name={fx.homeName} size="sm" logoMap={teamLogoMap} />
           </span>
-        ) : (
-          <span className="gw-fixture-vs">v</span>
-        )}
-        <span className="gw-fixture-side gw-fixture-side--end">
-          <span className={fx.awayPts != null && fx.awayPts > fx.homePts ? 'fw-600' : ''}>{fx.awayName}</span>
-          <TeamAvatar entryId={fx.awayId} name={fx.awayName} size="sm" logoMap={teamLogoMap} />
-        </span>
-      </div>
-    </li>
-  )
+          <span
+            className={`gw-fixture-name-cell gw-fixture-name-cell--home${homeWin ? ' gw-fixture-name--winner' : ''}`}
+          >
+            <span className="gw-fixture-name-text">{fx.homeName}</span>
+            {homeRank != null ? (
+              <span className="gw-fixture-rank muted"> (#{homeRank})</span>
+            ) : null}
+          </span>
+          {fx.homePts != null ? (
+            <span className="gw-fixture-score gw-fixture-mid">
+              {fx.homePts} – {fx.awayPts}
+            </span>
+          ) : (
+            <span className="gw-fixture-vs gw-fixture-mid">v</span>
+          )}
+          <span
+            className={`gw-fixture-name-cell gw-fixture-name-cell--away${awayWin ? ' gw-fixture-name--winner' : ''}`}
+          >
+            <span className="gw-fixture-name-text">{fx.awayName}</span>
+            {awayRank != null ? (
+              <span className="gw-fixture-rank muted"> (#{awayRank})</span>
+            ) : null}
+          </span>
+          <span className="gw-fixture-avatar gw-fixture-avatar--away">
+            <TeamAvatar entryId={fx.awayId} name={fx.awayName} size="sm" logoMap={teamLogoMap} />
+          </span>
+        </div>
+      </li>
+    )
+  }
 
   return (
     <div className="app fotmob">
@@ -370,20 +399,6 @@ function App() {
               📈
             </span>
             <span className="dashboard-nav__label">Standings &amp; Form</span>
-          </button>
-          <button
-            type="button"
-            className={
-              'dashboard-nav__btn' +
-              (dashboardView === 'playoff' ? ' dashboard-nav__btn--active' : '')
-            }
-            onClick={() => setDashboardView('playoff')}
-            aria-current={dashboardView === 'playoff' ? 'page' : undefined}
-          >
-            <span className="dashboard-nav__emoji" aria-hidden="true">
-              🏆
-            </span>
-            <span className="dashboard-nav__label">Play Off</span>
           </button>
           <button
             type="button"
@@ -1148,12 +1163,6 @@ function App() {
               </p>
             )}
           </section>
-            </div>
-          )}
-
-          {dashboardView === 'playoff' && (
-            <div className="dashboard-stack">
-              <PlayOffBracket tableRows={tableRows} teamLogoMap={teamLogoMap} />
             </div>
           )}
 
