@@ -1,7 +1,177 @@
 {
-  "generated": "2026-03-19T14:47:34.740Z",
+  "generated": "2026-03-19T22:20:30.179Z",
   "note": "droppedPlayerGwPoints / pickedUpPlayerGwPoints = FPL pts that GW for element_out / element_in (event/live)",
   "rows": [
+    {
+      "transactionId": 49766319,
+      "entry": 74425,
+      "gameweek": 31,
+      "element_in": 681,
+      "element_out": 813,
+      "added": "2026-03-19T18:27:20.330934Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49766317,
+      "entry": 74425,
+      "gameweek": 31,
+      "element_in": 792,
+      "element_out": 806,
+      "added": "2026-03-19T18:27:20.330906Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49766314,
+      "entry": 74425,
+      "gameweek": 31,
+      "element_in": 215,
+      "element_out": 283,
+      "added": "2026-03-19T18:27:20.330862Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49766312,
+      "entry": 74425,
+      "gameweek": 31,
+      "element_in": 343,
+      "element_out": 342,
+      "added": "2026-03-19T18:27:20.330832Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49766309,
+      "entry": 74425,
+      "gameweek": 31,
+      "element_in": 646,
+      "element_out": 808,
+      "added": "2026-03-19T18:27:20.330770Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49766308,
+      "entry": 74425,
+      "gameweek": 31,
+      "element_in": 450,
+      "element_out": 200,
+      "added": "2026-03-19T18:27:20.330711Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49552413,
+      "entry": 27870,
+      "gameweek": 31,
+      "element_in": 565,
+      "element_out": 469,
+      "added": "2026-03-19T15:47:56.283177Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49552409,
+      "entry": 27870,
+      "gameweek": 31,
+      "element_in": 224,
+      "element_out": 225,
+      "added": "2026-03-19T15:47:56.283084Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49080273,
+      "entry": 40385,
+      "gameweek": 31,
+      "element_in": 146,
+      "element_out": 714,
+      "added": "2026-03-17T20:34:45.670230Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49080270,
+      "entry": 40385,
+      "gameweek": 31,
+      "element_in": 148,
+      "element_out": 408,
+      "added": "2026-03-17T20:34:45.670186Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 49080268,
+      "entry": 40385,
+      "gameweek": 31,
+      "element_in": 591,
+      "element_out": 26,
+      "added": "2026-03-17T20:34:45.670155Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 48788878,
+      "entry": 27134,
+      "gameweek": 31,
+      "element_in": 7,
+      "element_out": 36,
+      "added": "2026-03-16T07:46:44.833277Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 48706035,
+      "entry": 40240,
+      "gameweek": 31,
+      "element_in": 476,
+      "element_out": 258,
+      "added": "2026-03-15T17:12:06.039791Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 48687675,
+      "entry": 31812,
+      "gameweek": 31,
+      "element_in": 505,
+      "element_out": 261,
+      "added": "2026-03-15T15:43:31.732129Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 48687674,
+      "entry": 31812,
+      "gameweek": 31,
+      "element_in": 299,
+      "element_out": 547,
+      "added": "2026-03-15T15:43:31.732109Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 48673260,
+      "entry": 27040,
+      "gameweek": 31,
+      "element_in": 673,
+      "element_out": 628,
+      "added": "2026-03-15T13:11:36.517210Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
+    {
+      "transactionId": 48673259,
+      "entry": 27040,
+      "gameweek": 31,
+      "element_in": 477,
+      "element_out": 256,
+      "added": "2026-03-15T13:11:36.517168Z",
+      "droppedPlayerGwPoints": null,
+      "pickedUpPlayerGwPoints": null
+    },
     {
       "transactionId": 48538458,
       "entry": 74425,

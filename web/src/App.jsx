@@ -323,31 +323,39 @@ function App() {
 
   return (
     <div className="app fotmob">
-      <header className="page-header page-header--centered">
-        <section className="tile tile--title-banner" aria-label="League">
-          <h1 className="page-title-main">{LEAGUE_TITLE}</h1>
-          <h2 className="page-title-season">{LEAGUE_SEASON_SUB}</h2>
-        </section>
-        {fetchFailedDemo && (
-          <div className="data-banner data-banner--error" role="alert">
-            <strong>League file didn’t load</strong> (wrong URL or deploy). Showing demo only.{' '}
-            Use <code>https://YOUR_USER.github.io/repo-name/</code> with your real repo name (often
-            lowercase). If the repo is <code>you.github.io</code>, use <code>https://you.github.io/</code>{' '}
-            — no <code>/repo/</code> path.
-          </div>
-        )}
-        {isSampleData && !fetchFailedDemo && (
-          <div className="data-banner" role="status">
-            <strong>Demo data</strong> — site owner: add GitHub secret{' '}
-            <code>FPL_LEAGUE_ID</code> (your draft league number) under Settings → Secrets, then redeploy.
-            Or publish files: <code>python3 ingest.py ID</code>,{' '}
-            <code>cd web && npm run publish-real-league</code>, commit{' '}
-            <code>web/public/league-data/</code>. ID: <code>draft.premierleague.com/league/YOUR_ID</code>
-          </div>
-        )}
-      </header>
-
       <main className="dashboard-layout dashboard-layout--with-nav">
+        <div className="dashboard-page-hero">
+          <header className="page-header page-header--centered">
+            <section className="tile tile--title-banner" aria-label="League">
+              <h1 className="page-title-main">{LEAGUE_TITLE}</h1>
+              <h2 className="page-title-season">{LEAGUE_SEASON_SUB}</h2>
+            </section>
+            <div className="header-team-strip" aria-label="League teams">
+              {teamsForFormSelect.map((t) => (
+                <div key={t.id} className="header-team-strip__item" title={t.teamName}>
+                  <TeamAvatar entryId={t.id} name={t.teamName} size="header" logoMap={teamLogoMap} />
+                </div>
+              ))}
+            </div>
+            {fetchFailedDemo && (
+              <div className="data-banner data-banner--error" role="alert">
+                <strong>League file didn’t load</strong> (wrong URL or deploy). Showing demo only.{' '}
+                Use <code>https://YOUR_USER.github.io/repo-name/</code> with your real repo name (often
+                lowercase). If the repo is <code>you.github.io</code>, use <code>https://you.github.io/</code>{' '}
+                — no <code>/repo/</code> path.
+              </div>
+            )}
+            {isSampleData && !fetchFailedDemo && (
+              <div className="data-banner" role="status">
+                <strong>Demo data</strong> — site owner: add GitHub secret{' '}
+                <code>FPL_LEAGUE_ID</code> (your draft league number) under Settings → Secrets, then redeploy.
+                Or publish files: <code>python3 ingest.py ID</code>,{' '}
+                <code>cd web && npm run publish-real-league</code>, commit{' '}
+                <code>web/public/league-data/</code>. ID: <code>draft.premierleague.com/league/YOUR_ID</code>
+              </div>
+            )}
+          </header>
+        </div>
         <nav className="dashboard-nav" aria-label="Dashboard sections">
           <button
             type="button"
@@ -463,12 +471,15 @@ function App() {
                 <tbody>
                   {tableRows.map((row) => {
                     const isLeader = row.rank === 1
-                    const isPlayoffDivider = row.rank === 1 || row.rank === 8
-                    const trClass = [isLeader ? 'row-highlight' : '', isPlayoffDivider ? 'row-standings-dotted-under' : '']
+                    const rowClass = [
+                      isLeader ? 'row-highlight' : '',
+                      row.rank === 1 ? 'standings-row--divider-below' : '',
+                      row.rank === 8 ? 'standings-row--divider-above standings-row--8th' : '',
+                    ]
                       .filter(Boolean)
                       .join(' ')
                     return (
-                      <tr key={row.league_entry} className={trClass || undefined}>
+                      <tr key={row.league_entry} className={rowClass || undefined}>
                         <td className="col-rank">{row.rank}</td>
                         <td className="col-team">
                           <span className="team-cell">

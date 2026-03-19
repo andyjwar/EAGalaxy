@@ -3,7 +3,7 @@
   /* Cool blue-grey shell — complements purple → cyan accents */
   --fm-bg: #f3f5f9;
   --fm-card: #ffffff;
-  --fm-border: #e8e8e8;
+  --fm-border: #dde3ee;
   --fm-text: #5c5c5c;
   --fm-text-strong: #111111;
   --fm-win: #00a650;
@@ -21,6 +21,14 @@
     #22d3ee 100%
   );
   --fm-accent-glow: 0 4px 20px rgba(91, 60, 200, 0.22);
+  /* Standings & legacy helpers */
+  --fm-dash-gradient: var(--fm-accent-gradient);
+  --fm-standings-cut: #b6becd;
+  --fm-table-head: #f2f5fb;
+  --fm-standings-8th-bg: #fdf2f2;
+  --fm-nav-hover-bg: #dbeafe;
+  --fm-nav-hover-border: #60a5fa;
+  --fm-nav-hover-text: #1e3a8a;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--fm-bg);
   color: var(--fm-text);
@@ -49,17 +57,32 @@
 
 .dashboard-layout--with-nav {
   grid-template-columns: minmax(168px, 200px) minmax(0, 1fr);
+  grid-template-rows: auto auto;
   gap: 18px 24px;
   align-items: start;
 }
 
-.dashboard-nav {
+/* Row 1: title + team strip full width; row 2: nav lines up with first content tile */
+.dashboard-layout--with-nav > .dashboard-page-hero {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.dashboard-layout--with-nav > .dashboard-nav {
+  grid-column: 1;
+  grid-row: 2;
   display: flex;
   flex-direction: column;
   gap: 8px;
   position: sticky;
   top: 12px;
   align-self: start;
+}
+
+.dashboard-layout--with-nav > .dashboard-content {
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .dashboard-nav__btn {
@@ -75,11 +98,16 @@
   font-weight: 600;
   text-align: left;
   color: var(--fm-text);
-  background: var(--fm-card);
+  background-color: var(--fm-card);
+  background-image: none;
   border: 1px solid var(--fm-border);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  /* Snappy hover; avoid transitioning into gradient (that felt like a delay on click) */
+  transition:
+    background-color 0.08s ease-out,
+    border-color 0.08s ease-out,
+    color 0.08s ease-out;
 }
 
 .dashboard-nav__emoji {
@@ -92,10 +120,10 @@
   min-width: 0;
 }
 
-.dashboard-nav__btn:hover {
-  background: #f4f2ff;
-  color: #4338ca;
-  border-color: #ddd6fe;
+.dashboard-nav__btn:not(.dashboard-nav__btn--active):hover {
+  background-color: var(--fm-nav-hover-bg);
+  border-color: var(--fm-nav-hover-border);
+  color: var(--fm-nav-hover-text);
 }
 
 .dashboard-nav__btn--active {
@@ -104,12 +132,12 @@
   border: none;
   box-shadow: var(--fm-accent-glow);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition: filter 0.1s ease;
 }
 
 .dashboard-nav__btn--active:hover {
-  background: var(--fm-accent-gradient);
-  color: #fff;
   filter: brightness(1.06);
+  color: #fff;
 }
 
 .dashboard-content {
@@ -132,19 +160,33 @@
 
   .dashboard-layout--with-nav {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
   }
 
-  .dashboard-nav {
+  .dashboard-layout--with-nav > .dashboard-page-hero {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-layout--with-nav > .dashboard-nav {
+    grid-column: 1;
+    grid-row: auto;
     position: static;
     flex-direction: row;
     flex-wrap: wrap;
   }
 
-  .dashboard-nav__btn {
+  .dashboard-layout--with-nav > .dashboard-content {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-layout--with-nav .dashboard-nav__btn {
     flex: 1;
     min-width: 140px;
     justify-content: center;
     text-align: center;
+    justify-content: center;
   }
 
   .dashboard-sidebar {
@@ -1647,10 +1689,12 @@ button.live-fixture-banner--toggle {
 }
 
 .tile--title-banner {
-  margin: 0 auto 16px;
-  max-width: min(100%, 42rem);
+  width: 100%;
+  max-width: none;
+  margin: 0 0 16px;
   text-align: center;
   padding: 18px 22px;
+  box-sizing: border-box;
 }
 
 .tile--title-banner .page-title-main {
@@ -1672,10 +1716,46 @@ button.live-fixture-banner--toggle {
   line-height: 1.3;
 }
 
-.tile--title-banner .brand-sub--in-title-tile {
+.brand-sub--in-title-tile {
   margin: 10px 0 0;
   font-size: 0.9rem;
+  color: var(--fm-text);
+}
+
+.tile--title-banner .brand-sub--in-title-tile {
   color: rgba(255, 255, 255, 0.88);
+  font-weight: 600;
+}
+
+.header-team-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+  padding: 8px 8px 4px;
+  margin-top: 0;
+}
+
+.header-team-strip__item {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition:
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.header-team-strip__item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .brand-row {
@@ -1770,9 +1850,9 @@ button.live-fixture-banner--toggle {
 .tile.tile--title-banner {
   background: var(--fm-accent-gradient);
   border: none;
+  border-radius: 12px;
   box-shadow: var(--fm-accent-glow);
   color: #fff;
-  padding: 18px 22px;
 }
 
 .tile-title {
@@ -2064,14 +2144,15 @@ button.live-fixture-banner--toggle {
   white-space: nowrap;
 }
 
-.standings-table th {
+.standings-table thead th {
   text-align: left;
   font-weight: 600;
   color: var(--fm-text);
   text-transform: uppercase;
   font-size: 0.65rem;
   letter-spacing: 0.04em;
-  background: #fafafa;
+  /* Was blue-grey “banner”; highlight moved to 1st-place row */
+  background: var(--fm-card);
 }
 
 .standings-table .col-num,
@@ -2104,19 +2185,31 @@ button.live-fixture-banner--toggle {
   padding-right: 16px;
 }
 
-/* Remove bottom border on last row unless it’s a playoff divider (e.g. 8-team league). */
-.standings-table tbody tr:last-child:not(.row-standings-dotted-under) td {
+.standings-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Full-row dashed line under 1st and 8th (playoff zone) — matches thead text colour */
-.standings-table tbody tr.row-standings-dotted-under td {
-  border-bottom: 2px dashed var(--fm-text);
+/* Leader row: former table-head blue-grey band, across the full row */
+.standings-table tbody tr.row-highlight td {
+  background: var(--fm-table-head, #f2f5fb);
 }
 
-.row-highlight {
-  /* Match app shell (--fm-bg) so 1st place picks up the same cool blue-grey */
-  background: var(--fm-bg);
+/* 8th place: soft red tint (same “faded” idea as leader blue) */
+.standings-table tbody tr.standings-row--8th td {
+  background: var(--fm-standings-8th-bg);
+}
+
+/* Thin dashed separators — easy on the eye */
+.standings-table tbody tr.standings-row--divider-below td {
+  border-bottom: 1px dashed var(--fm-standings-cut);
+}
+
+.standings-table tbody tr.standings-row--divider-above td {
+  border-top: 1px dashed var(--fm-standings-cut);
+}
+
+.standings-table tbody tr:has(+ tr.standings-row--divider-above) td {
+  border-bottom: none;
 }
 
 .tabular {
