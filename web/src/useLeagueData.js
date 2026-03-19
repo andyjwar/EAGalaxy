@@ -101,6 +101,97 @@ function buildMostWaivered(transactionsPayload, fplMini) {
     });
 }
 
+function enrichTradePlayer(elementId, elemById, teamById) {
+  const e = elemById[elementId];
+  const tm = e ? teamById[e.team] : null;
+  const teamId = e?.team;
+  return {
+    elementId,
+    web_name: e?.web_name ?? `Player #${elementId}`,
+    teamShort: tm?.short_name ?? '—',
+    teamId,
+    shirtUrl:
+      teamId != null
+        ? `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamId}-1.png`
+        : null,
+    badgeUrl:
+      tm?.code != null
+        ? `https://resources.premierleague.com/premierleague/badges/50/t${tm.code}.png`
+        : null,
+  };
+}
+
+/**
+ * Manual UI labels when the draft trade API element id doesn’t match what the league
+ * remembers. Point totals for those trades use `TRADE_POINTS_OVERRIDES` in
+ * `build-waiver-gw-analytics.mjs` so `trades-panel.json` matches the corrected player.
+ */
+const TRADE_DISPLAY_FIXES = [
+  {
+    tradeId: 424033,
+    elementId: 661,
+    web_name: 'Gyökeres',
+    teamId: 1,
+  },
+  {
+    tradeId: 543307,
+    elementId: 728,
+    web_name: 'Donnarumma',
+    teamId: 13,
+  },
+];
+
+function applyTradeDisplayFix(player, fix, teamById) {
+  if (!fix || !player || player.elementId !== fix.elementId) return player;
+  const tm = teamById[fix.teamId];
+  return {
+    ...player,
+    web_name: fix.web_name,
+    teamId: fix.teamId,
+    teamShort: tm?.short_name ?? player.teamShort,
+    shirtUrl:
+      fix.teamId != null
+        ? `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${fix.teamId}-1.png`
+        : player.shirtUrl,
+    badgeUrl:
+      tm?.code != null
+        ? `https://resources.premierleague.com/premierleague/badges/50/t${tm.code}.png`
+        : player.badgeUrl,
+  };
+}
+
+function processTradesPanel(raw, elemById, teamById) {
+  if (!raw?.trades?.length) return [];
+  const fixesFor = (tradeId) =>
+    TRADE_DISPLAY_FIXES.filter((f) => f.tradeId === tradeId);
+  return raw.trades.map((t) => {
+    const fixes = fixesFor(t.id);
+    const legs = (t.legs || []).map((leg) => {
+      let gained = enrichTradePlayer(leg.gainedElementId, elemById, teamById);
+      let gave = enrichTradePlayer(leg.gaveElementId, elemById, teamById);
+      for (const fix of fixes) {
+        gained = applyTradeDisplayFix(gained, fix, teamById);
+        gave = applyTradeDisplayFix(gave, fix, teamById);
+      }
+      return {
+        ...leg,
+        gained,
+        gave,
+        managerAvatarEntry:
+          leg.leagueEntryId != null ? leg.leagueEntryId : leg.fplEntryId,
+      };
+    });
+    const pairs = [];
+    for (let i = 0; i < legs.length; i += 2) {
+      pairs.push({
+        offeredLeg: legs[i],
+        receivedLeg: legs[i + 1],
+      });
+    }
+    return { ...t, legs, pairs };
+  });
+}
+
 export function useLeagueData() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -124,7 +215,7 @@ export function useLeagueData() {
             throw fetchErr;
           }
         }
-        const [transactions, fplMini, waiverOutGw, waiverInTenureTop] =
+        const [transactions, fplMini, waiverOutGw, waiverInTenureTop, tradesPanel] =
           await Promise.all([
             fetchJSONOptional('transactions.json'),
             fetchJSONOptional('fpl-mini.json'),
@@ -133,6 +224,7 @@ export function useLeagueData() {
               'waiver-out-gw-scores.json',
             ]),
             fetchFirstOptional(['pickups-tenure.json', 'waiver-in-tenure-top.json']),
+            fetchJSONOptional('trades-panel.json'),
           ]);
         let teamLogoMap = {};
         try {
@@ -155,6 +247,7 @@ export function useLeagueData() {
               fplMini,
               waiverOutGw,
               waiverInTenureTop,
+              tradesPanel,
             }),
             teamLogoMap,
             fetchFailedDemo,
@@ -466,11 +559,16 @@ function processLeagueData(raw, extras = {}) {
     sortedByRank.map((s) => [s.league_entry, buildFormStrip(s.league_entry)])
   );
 
-  const teamsForFormSelect = sortedByRank.map((s) => ({
-    id: s.league_entry,
-    rank: s.rank,
-    teamName: s.teamName,
-  }));
+  const teamsForFormSelect = sortedByRank.map((s) => {
+    const entryRow = leagueEntries.find((e) => e.id === s.league_entry);
+    return {
+      id: s.league_entry,
+      fplEntryId:
+        entryRow?.entry_id != null ? Number(entryRow.entry_id) : null,
+      rank: s.rank,
+      teamName: s.teamName,
+    };
+  });
 
   const finishedSorted = [...finished].sort((a, b) => {
     if (b.event !== a.event) return b.event - a.event;
@@ -672,6 +770,12 @@ function processLeagueData(raw, extras = {}) {
         a.teamName.localeCompare(b.teamName)
     );
 
+  const tradesPanelRows = processTradesPanel(
+    extras.tradesPanel,
+    elemById,
+    teamById
+  );
+
   return {
     league: details.league,
     standings: sortedByRank,
@@ -694,6 +798,7 @@ function processLeagueData(raw, extras = {}) {
     waiverInPointsByTeam,
     winMarginBucketRows,
     lossMarginBucketRows,
+    tradesPanelRows,
     isSampleData,
   };
 }

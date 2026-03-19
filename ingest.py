@@ -49,6 +49,7 @@ def ingest_league(league_id: int, output_dir: Path) -> None:
         ("details", f"{DRAFT_API}/league/{league_id}/details"),
         ("element_status", f"{DRAFT_API}/league/{league_id}/element-status"),
         ("transactions", f"{DRAFT_API}/draft/league/{league_id}/transactions"),
+        ("trades", f"{DRAFT_API}/draft/league/{league_id}/trades"),
         ("bootstrap_draft", f"{DRAFT_API}/bootstrap-static"),
         ("bootstrap_fpl", f"{FPL_API}/bootstrap-static"),
     ]

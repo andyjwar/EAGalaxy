@@ -6,6 +6,10 @@ on:
   push:
     branches: [main, master]
   workflow_dispatch:
+  # Refresh live data on a schedule (UTC). Edit cron to taste — e.g. after each GW deadline.
+  # Examples: '0 6 * * *' daily 06:00 UTC | '0 6,18 * * *' twice daily | '30 5 * * 1,3,5' Mon/Wed/Fri
+  schedule:
+    - cron: '30 5 * * *'
 
 # Quiets Node 20 deprecation on actions (see GitHub changelog 2025-09-19)
 env:
@@ -54,9 +58,17 @@ jobs:
       # Relative base (./) so JS + league-data load even if URL casing/path differs
       - name: Install & build
         working-directory: web
+        env:
+          VITE_BASE_PATH: "./"
+          # Repository secret/variable, or add the same name under Settings → Environments → github-pages
+          VITE_FPL_PROXY_URL: ${{ secrets.VITE_FPL_PROXY_URL || vars.VITE_FPL_PROXY_URL }}
         run: |
-          export VITE_BASE_PATH="./"
           echo "VITE_BASE_PATH=$VITE_BASE_PATH (relative — use URL with trailing slash: …/repo-name/)"
+          if [ -n "$VITE_FPL_PROXY_URL" ]; then
+            echo "VITE_FPL_PROXY_URL is set for Vite (Live tab will use your Worker)"
+          else
+            echo "::warning::VITE_FPL_PROXY_URL empty — add Repository secret (or Variable) named exactly VITE_FPL_PROXY_URL, or an Environment secret on github-pages, then re-run this workflow."
+          fi
           npm ci
           npm run build
       - name: Verify league data shipped

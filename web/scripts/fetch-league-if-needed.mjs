@@ -55,6 +55,7 @@ try {
   await save('details', `${DRAFT}/league/${id}/details`)
   await save('element_status', `${DRAFT}/league/${id}/element-status`)
   await save('transactions', `${DRAFT}/draft/league/${id}/transactions`)
+  await save('trades', `${DRAFT}/draft/league/${id}/trades`)
   await save('bootstrap_draft', `${DRAFT}/bootstrap-static`)
   await save('bootstrap_fpl', `${FPL}/bootstrap-static`)
   const fx = await fetch(`${FPL}/fixtures`)

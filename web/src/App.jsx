@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   useLeagueData,
   FORM_LAST_N,
   WIN_MARGIN_BUCKET_KEYS,
 } from './useLeagueData'
 import { TeamAvatar } from './TeamAvatar'
+import { LiveScores } from './LiveScores'
 import './App.css'
 
 const LEAGUE_TITLE = 'The Tri-Continental League of Titans'
@@ -51,13 +52,103 @@ function PlayerKit({ shirtUrl, badgeUrl, teamShort }) {
   )
 }
 
+/** Single processed-trade card (GW, date, managers, pairs + tenure points). */
+function TradeCardArticle({ trade, teamLogoMap }) {
+  return (
+    <article className="trade-card">
+      <div className="trade-card__head">
+        {trade.event != null ? (
+          <span className="league-pill league-pill--sm">GW {trade.event}</span>
+        ) : null}
+        {trade.responseTime ? (
+          <time className="muted trade-card__date" dateTime={trade.responseTime}>
+            {new Date(trade.responseTime).toLocaleDateString(undefined, {
+              dateStyle: 'medium',
+            })}
+          </time>
+        ) : null}
+      </div>
+      <div className="trade-card__managers">
+        <div className="trade-card__mgr">
+          <TeamAvatar
+            entryId={trade.offeredLeagueEntry ?? trade.offeredFplEntry}
+            name={trade.offeredTeamName}
+            size="sm"
+            logoMap={teamLogoMap}
+          />
+          <span className="trade-card__mgr-name">{trade.offeredTeamName}</span>
+        </div>
+        <span className="trade-card__vs" aria-hidden>
+          ⇄
+        </span>
+        <div className="trade-card__mgr">
+          <TeamAvatar
+            entryId={trade.receivedLeagueEntry ?? trade.receivedFplEntry}
+            name={trade.receivedTeamName}
+            size="sm"
+            logoMap={teamLogoMap}
+          />
+          <span className="trade-card__mgr-name">{trade.receivedTeamName}</span>
+        </div>
+      </div>
+      {(trade.pairs || []).map((pair, pidx) => (
+        <div key={pidx} className="trade-pair">
+          <div className="trade-pair__col">
+            {pair.offeredLeg ? (
+              <div className="trade-player-line">
+                <PlayerKit
+                  shirtUrl={pair.offeredLeg.gained.shirtUrl}
+                  badgeUrl={pair.offeredLeg.gained.badgeUrl}
+                  teamShort={pair.offeredLeg.gained.teamShort}
+                />
+                <div className="trade-player-line__text">
+                  <span className="trade-player-line__name">{pair.offeredLeg.gained.web_name}</span>
+                  <span className="trade-player-line__club muted">
+                    {pair.offeredLeg.gained.teamShort}
+                  </span>
+                  <span className="trade-player-line__pts tabular">
+                    <strong>{pair.offeredLeg.totalPoints}</strong> pts · GW {pair.offeredLeg.gwRangeLabel}
+                    {pair.offeredLeg.stillOnTeam ? ' · on squad' : ''}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <div className="trade-pair__col">
+            {pair.receivedLeg ? (
+              <div className="trade-player-line">
+                <PlayerKit
+                  shirtUrl={pair.receivedLeg.gained.shirtUrl}
+                  badgeUrl={pair.receivedLeg.gained.badgeUrl}
+                  teamShort={pair.receivedLeg.gained.teamShort}
+                />
+                <div className="trade-player-line__text">
+                  <span className="trade-player-line__name">{pair.receivedLeg.gained.web_name}</span>
+                  <span className="trade-player-line__club muted">
+                    {pair.receivedLeg.gained.teamShort}
+                  </span>
+                  <span className="trade-player-line__pts tabular">
+                    <strong>{pair.receivedLeg.totalPoints}</strong> pts · GW {pair.receivedLeg.gwRangeLabel}
+                    {pair.receivedLeg.stillOnTeam ? ' · on squad' : ''}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ))}
+    </article>
+  )
+}
+
 function App() {
   const { data, error, loading } = useLeagueData()
   const [formTeamId, setFormTeamId] = useState(null)
   const [waiverOutTeamFilter, setWaiverOutTeamFilter] = useState('all')
   const [waiverOutGwFilter, setWaiverOutGwFilter] = useState('all')
   const [waiverGwTableMode, setWaiverGwTableMode] = useState('out')
-  const [dashboardView, setDashboardView] = useState('standings')
+  const [dashboardView, setDashboardView] = useState('standings') // standings | waivers | trades | live
+  const [liveGw, setLiveGw] = useState(null)
 
   const waiverOutTeamOptions = useMemo(() => {
     const rows = data?.waiverOutGwRows ?? []
@@ -115,6 +206,12 @@ function App() {
     }
   }, [filteredWaiverOutRows, waiverOutTeamFilter, waiverGwTableMode])
 
+  useEffect(() => {
+    if (!data || liveGw != null) return
+    const gw = data.previousGameweek ?? data.nextEvent ?? 1
+    setLiveGw(Number(gw))
+  }, [data, liveGw])
+
   if (loading) {
     return (
       <div className="app fotmob">
@@ -165,6 +262,7 @@ function App() {
     waiverInPointsByTeam,
     winMarginBucketRows,
     lossMarginBucketRows,
+    tradesPanelRows,
   } = data
 
   const defaultFormEntry = teamsForFormSelect[0]?.id
@@ -252,6 +350,28 @@ function App() {
             aria-current={dashboardView === 'waivers' ? 'page' : undefined}
           >
             Waivers
+          </button>
+          <button
+            type="button"
+            className={
+              'dashboard-nav__btn' +
+              (dashboardView === 'trades' ? ' dashboard-nav__btn--active' : '')
+            }
+            onClick={() => setDashboardView('trades')}
+            aria-current={dashboardView === 'trades' ? 'page' : undefined}
+          >
+            Trades
+          </button>
+          <button
+            type="button"
+            className={
+              'dashboard-nav__btn' +
+              (dashboardView === 'live' ? ' dashboard-nav__btn--active' : '')
+            }
+            onClick={() => setDashboardView('live')}
+            aria-current={dashboardView === 'live' ? 'page' : undefined}
+          >
+            Live
           </button>
         </nav>
         <div className="dashboard-content">
@@ -970,12 +1090,61 @@ function App() {
             </div>
           )}
 
+          {dashboardView === 'trades' && (
+            <div className="dashboard-stack">
+              <section className="tile tile--compact" aria-labelledby="trades-heading">
+                <h2 id="trades-heading" className="tile-title tile-title--sm">
+                  Trades
+                </h2>
+                <p className="tile-hint muted tile-hint--tight">
+                  Processed trades only (FPL state <code>p</code>). <strong>Pts</strong> = FPL total for
+                  the acquired player from <strong>GW a–b</strong> on that manager&apos;s squad (from
+                  trade week until first drop, or last finished GW if still there). Club kit ={' '}
+                  player&apos;s Premier League team. Names come from today&apos;s FPL data for the{' '}
+                  <strong>element id</strong> stored in the official draft trade feed — if that ever
+                  disagrees with what you remember, compare trade id / ids on{' '}
+                  <a
+                    href="https://draft.premierleague.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    draft.premierleague.com
+                  </a>
+                  .
+                </p>
+                {tradesPanelRows?.length ? (
+                  <div className="trades-list">
+                    {tradesPanelRows.map((trade) => (
+                      <TradeCardArticle key={trade.id} trade={trade} teamLogoMap={teamLogoMap} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="muted muted--tight">
+                    No trade analytics yet. Ingest <code>trades.json</code> (included in{' '}
+                    <code>ingest.py</code> / local fetch), run <code>npm run dev</code> or{' '}
+                    <code>npm run build</code> to generate <code>trades-panel.json</code>.
+                  </p>
+                )}
+              </section>
+            </div>
+          )}
+
+          {dashboardView === 'live' && liveGw != null && (
+            <LiveScores
+              teams={teamsForFormSelect}
+              gameweek={liveGw}
+              onGameweekChange={setLiveGw}
+              teamLogoMap={teamLogoMap}
+            />
+          )}
+
           <footer className="page-footer muted">
-            Data from{' '}
+            Draft data from{' '}
             <a href="https://draft.premierleague.com" target="_blank" rel="noopener noreferrer">
               draft.premierleague.com
-            </a>
-            . Refresh with <code>ingest.py</code>.
+            </a>{' '}
+            (refresh with <code>ingest.py</code>). <strong>Live</strong> tab loads picks &amp; scores
+            directly from <code>fantasy.premierleague.com</code> in your browser.
           </footer>
         </div>
       </main>

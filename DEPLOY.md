@@ -32,6 +32,36 @@ git commit -m "League data" && git push
 
 ---
 
+## 1b. Live tab — FPL CORS proxy (Cloudflare Worker)
+
+GitHub Pages cannot call `fantasy.premierleague.com` from the browser (CORS). The **Live** tab needs a tiny **proxy**.
+
+1. Deploy the worker once (free Cloudflare account):
+
+   ```bash
+   cd web/workers/fpl-proxy
+   npx wrangler login
+   npx wrangler deploy
+   ```
+
+2. Copy the URL Wrangler prints (e.g. `https://tclot-fpl-proxy.yourname.workers.dev`).
+
+3. Add **`VITE_FPL_PROXY_URL`** (no trailing slash). Name must match **exactly**. Use one of:
+
+   - **Settings → Secrets and variables → Actions** → **Secrets** → New repository secret  
+   - Or **Variables** on that page (same name) — the workflow reads both.
+   - If the build still shows the value empty: **Settings → Environments → `github-pages` → Environment secrets** → add **`VITE_FPL_PROXY_URL`** (the deploy job uses that environment).
+
+4. **Re-run the deploy workflow** after saving (**Actions → Run workflow** or push a commit).  
+   Existing site JS **does not** update until a new build runs — `VITE_*` is baked in at build time.
+
+5. Check **`https://YOUR_USER.github.io/YOUR_REPO/deploy-check.json`**: **`liveProxyConfigured`** should be **`true`**.  
+   On **Live**, you should see **“Proxy active in this build”**. If you see **“No proxy in this JavaScript build”**, the last build did not receive the secret.
+
+Optional: in `web/workers/fpl-proxy/wrangler.toml`, set `[vars] ALLOW_ORIGIN = "https://YOUR_USER.github.io"` to restrict CORS.
+
+---
+
 ## 2. Team logos (PNG)
 
 Logos are **not** fetched from FPL. They only exist if **you** put files in the repo.

@@ -113,7 +113,7 @@ cd web && npm run dev
 
 `copy-data` also builds **`fpl-mini.json`** from `bootstrap_fpl.json` (player + team names for **Most waivered**). Ensure **`transactions.json`** and **`bootstrap_fpl.json`** exist (full `ingest.py`). Then `cd web && npm run dev`.
 
-**Pickup / drop analytics:** **`build-waiver-gw-analytics.mjs`** runs on each dev/build, calls FPL **`/api/event/{GW}/live/`** for every finished GW, then writes **`drops-gw-live.json`** (drop-week pts) and **`pickups-tenure.json`** (top pickups + team totals). Filenames avoid the word “waiver” so ad blockers are less likely to block them. Skip with **`SKIP_WAIVER_GW_SCORES=1`**.
+**Pickup / drop / trades analytics:** **`build-waiver-gw-analytics.mjs`** runs on each dev/build, calls FPL **`/api/event/{GW}/live/`** for every finished GW, then writes **`drops-gw-live.json`** (drop-week pts), **`pickups-tenure.json`** (top pickups + team totals), and **`trades-panel.json`** (processed trades + points per acquired player through their stint on the new squad). Requires **`transactions.json`** and/or **`trades.json`** (both come from **`ingest.py`** / local fetch). Skip live fetches with **`SKIP_WAIVER_GW_SCORES=1`**.
 
 ### GitHub Pages — link the live site to your league
 

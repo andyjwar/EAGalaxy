@@ -1,0 +1,10 @@
+# Cloudflare Workers — CORS proxy for fantasy.premierleague.com API
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "tclot-fpl-proxy"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+# Optional: lock to your GitHub Pages origin (recommended for production)
+# [vars]
+# ALLOW_ORIGIN = "https://youruser.github.io"

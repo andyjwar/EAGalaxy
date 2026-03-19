@@ -574,6 +574,324 @@
   color: var(--fm-text-strong);
 }
 
+/* —— Trades tab —— */
+.trades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.trade-card {
+  border: 1px solid var(--fm-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.trade-card__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.trade-card__date {
+  font-size: 0.75rem;
+}
+
+.trade-card__managers {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--fm-border);
+}
+
+.trade-card__mgr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.trade-card__mgr:last-of-type {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.trade-card__mgr-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-card__vs {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  color: var(--fm-muted, #666);
+}
+
+.trade-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--fm-border);
+}
+
+.trade-pair:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+@media (max-width: 560px) {
+  .trade-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-card__mgr:last-of-type {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .trade-card__managers {
+    flex-wrap: wrap;
+  }
+}
+
+.trade-player-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.trade-player-line__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trade-player-line__name {
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.trade-player-line__club {
+  font-size: 0.72rem;
+}
+
+.trade-player-line__pts {
+  font-size: 0.78rem;
+  margin-top: 2px;
+}
+
+/* —— Live scores (FPL API) —— */
+.live-scores-root {
+  gap: 14px;
+}
+
+.live-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin-top: 10px;
+}
+
+.live-gw-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.live-gw-select {
+  min-width: 200px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--fm-border);
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.live-refresh-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--fm-border);
+  background: var(--fm-surface-2, #f4f4f5);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.live-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.live-meta,
+.live-updated {
+  font-size: 0.78rem;
+  margin-top: 6px;
+}
+
+.live-squad-tile {
+  margin-top: 0;
+}
+
+.live-squad-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fm-border);
+}
+
+.live-squad-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.live-squad-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  font-size: 0.82rem;
+}
+
+.live-squad-pts strong {
+  font-size: 1.05rem;
+}
+
+.live-lineup-heading {
+  margin: 12px 0 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fm-muted, #555);
+}
+
+.live-lineup-heading--bench {
+  margin-top: 16px;
+}
+
+.live-auto-subs {
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+}
+
+.live-auto-sub-pair {
+  display: inline-block;
+  margin-right: 12px;
+}
+
+.live-picks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.live-picks-table th,
+.live-picks-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--fm-border);
+  vertical-align: middle;
+}
+
+.live-picks-table th {
+  font-weight: 600;
+  color: var(--fm-muted, #555);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.live-picks-col-num {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.live-picks-col-pos {
+  width: 2.5rem;
+}
+
+.live-picks-col-flag {
+  width: 2rem;
+}
+
+.live-player-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.live-kit-img {
+  width: 28px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.live-kit-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--fm-surface-2, #eee);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.live-player-name {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.live-player-club {
+  font-size: 0.72rem;
+}
+
+.live-picks-flags {
+  text-align: center;
+}
+
+.live-cap {
+  display: inline-block;
+  margin-right: 4px;
+  font-weight: 800;
+  font-size: 0.7rem;
+  color: var(--fm-accent, #2563eb);
+}
+
+.live-vc {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
 .table-scroll--win-margin {
   margin-top: 4px;
 }
