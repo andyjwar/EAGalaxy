@@ -183,6 +183,32 @@ function mapPickRows(
   return rows;
 }
 
+/**
+ * Starting XI players still on 0 minutes while their real club has at least one
+ * unfinished FPL fixture in this gameweek (avoids counting DNP after the match ends).
+ */
+function countStartersLeftToPlay(starters, elementById, gwFixtures) {
+  if (!Array.isArray(starters) || !starters.length) return 0;
+  if (!Array.isArray(gwFixtures) || !gwFixtures.length) {
+    return starters.filter((r) => (Number(r.minutes) || 0) === 0).length;
+  }
+  let n = 0;
+  for (const r of starters) {
+    const el = elementById[r.element];
+    if (!el) continue;
+    const tid = Number(el.team);
+    if (!Number.isFinite(tid)) continue;
+    const clubFixtureOpen = gwFixtures.some(
+      (f) =>
+        (Number(f.team_h) === tid || Number(f.team_a) === tid) &&
+        f.finished_provisional !== true
+    );
+    if (!clubFixtureOpen) continue;
+    if ((Number(r.minutes) || 0) === 0) n++;
+  }
+  return n;
+}
+
 function applyBonusColumn(rows, ctx) {
   const { elementById, liveFullByElementId: liveFull, provisionalByElement, fixtureById, gwFixtures } =
     ctx;
@@ -312,6 +338,7 @@ export function useLiveScores({ teams, gameweek, enabled, onBootstrapLiveMeta })
               bench: [],
               gwPoints: null,
               autoSubs: [],
+              leftToPlayCount: null,
             };
           }
 
@@ -327,6 +354,7 @@ export function useLiveScores({ teams, gameweek, enabled, onBootstrapLiveMeta })
               bench: [],
               gwPoints: null,
               autoSubs: [],
+              leftToPlayCount: null,
             };
           }
           const picksPayload = await pr.json();
@@ -353,6 +381,12 @@ export function useLiveScores({ teams, gameweek, enabled, onBootstrapLiveMeta })
           const autoSubs =
             picksPayload.automatic_subs ?? picksPayload.subs ?? [];
 
+          const leftToPlayCount = countStartersLeftToPlay(
+            starters,
+            elementById,
+            gwFixtures
+          );
+
           return {
             leagueEntryId: t.id,
             teamName: t.teamName,
@@ -363,6 +397,7 @@ export function useLiveScores({ teams, gameweek, enabled, onBootstrapLiveMeta })
             gwPoints,
             pointsOnBench,
             autoSubs,
+            leftToPlayCount,
           };
         })
       );

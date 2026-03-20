@@ -137,6 +137,30 @@ function teamNameForEntry(teams, leagueEntryId) {
   return teams?.find((t) => t.id === leagueEntryId)?.teamName ?? `Team ${leagueEntryId}`;
 }
 
+const LEFT_TO_PLAY_TITLE =
+  'Starting XI players on 0 minutes whose club still has a Premier League fixture to finish this gameweek';
+
+/** Bracketed count before the name (home / left). */
+function LeftToPlayOutsideBefore({ count }) {
+  if (typeof count !== 'number') return null;
+  return (
+    <span className="live-left-to-play tabular" title={LEFT_TO_PLAY_TITLE}>
+      ({count}){' '}
+    </span>
+  );
+}
+
+/** Bracketed count after the name (away / right). */
+function LeftToPlayOutsideAfter({ count }) {
+  if (typeof count !== 'number') return null;
+  return (
+    <span className="live-left-to-play tabular" title={LEFT_TO_PLAY_TITLE}>
+      {' '}
+      ({count})
+    </span>
+  );
+}
+
 /** @param {{ squad: object }} */
 function SquadLineupPanel({ squad }) {
   if (!squad) {
@@ -377,6 +401,9 @@ export function LiveScores({
             const awayLead =
               homeLive != null && awayLive != null && awayLive > homeLive;
 
+            const homeLtp = homeSquad?.leftToPlayCount;
+            const awayLtp = awaySquad?.leftToPlayCount;
+
             const fixtureKey = `${homeId}-${awayId}-${gameweek}`;
             const lineupOpen = expandedFixtures.has(fixtureKey);
             const fixtureBodyId = `live-fixture-lineups-${fixtureKey}`;
@@ -385,7 +412,11 @@ export function LiveScores({
               <section
                 key={fixtureKey}
                 className="tile tile--compact live-fixture-tile"
-                aria-label={`${homeName} vs ${awayName}`}
+                aria-label={
+                  typeof homeLtp === 'number' && typeof awayLtp === 'number'
+                    ? `${homeName}, ${homeLtp} left to play, vs ${awayName}, ${awayLtp} left to play`
+                    : `${homeName} vs ${awayName}`
+                }
               >
                 <button
                   type="button"
@@ -406,10 +437,11 @@ export function LiveScores({
                         logoMap={teamLogoMap}
                       />
                       <span className="live-fixture-banner__team-text">
-                        <span
-                          className={`live-fixture-banner__name ${homeLead ? 'live-fixture-banner__name--lead' : ''}`}
-                        >
-                          {homeName}
+                        <span className="live-fixture-banner__name">
+                          <LeftToPlayOutsideBefore count={homeLtp} />
+                          <span className={homeLead ? 'live-fixture-banner__name--lead' : undefined}>
+                            {homeName}
+                          </span>
                         </span>
                       </span>
                     </span>
@@ -429,10 +461,11 @@ export function LiveScores({
 
                     <span className="live-fixture-banner__team live-fixture-banner__team--away">
                       <span className="live-fixture-banner__team-text live-fixture-banner__team-text--end">
-                        <span
-                          className={`live-fixture-banner__name ${awayLead ? 'live-fixture-banner__name--lead' : ''}`}
-                        >
-                          {awayName}
+                        <span className="live-fixture-banner__name">
+                          <span className={awayLead ? 'live-fixture-banner__name--lead' : undefined}>
+                            {awayName}
+                          </span>
+                          <LeftToPlayOutsideAfter count={awayLtp} />
                         </span>
                       </span>
                       <TeamAvatar
@@ -449,7 +482,10 @@ export function LiveScores({
                 <div className="live-fixture-split" id={fixtureBodyId}>
                   <div className="live-fixture-column">
                     <div className="live-fixture-column-head">
-                      <h3 className="live-fixture-column-title">{homeName}</h3>
+                      <h3 className="live-fixture-column-title">
+                        <LeftToPlayOutsideBefore count={homeLtp} />
+                        {homeName}
+                      </h3>
                       <div className="live-squad-meta tabular">
                         {homeLive != null ? (
                           <span className="live-squad-pts">
@@ -466,7 +502,10 @@ export function LiveScores({
                   <div className="live-fixture-divider" aria-hidden="true" />
                   <div className="live-fixture-column">
                     <div className="live-fixture-column-head">
-                      <h3 className="live-fixture-column-title">{awayName}</h3>
+                      <h3 className="live-fixture-column-title">
+                        {awayName}
+                        <LeftToPlayOutsideAfter count={awayLtp} />
+                      </h3>
                       <div className="live-squad-meta tabular">
                         {awayLive != null ? (
                           <span className="live-squad-pts">
@@ -507,7 +546,10 @@ export function LiveScores({
                     size="sm"
                     logoMap={teamLogoMap}
                   />
-                  <span>{squad.teamName}</span>
+                  <span>
+                    {squad.teamName}
+                    <LeftToPlayOutsideAfter count={squad.leftToPlayCount} />
+                  </span>
                 </h3>
                 <div className="live-squad-meta tabular">
                   {liveGwDisplayTotal(squad) != null ? (
@@ -550,7 +592,10 @@ export function LiveScores({
                     size="sm"
                     logoMap={teamLogoMap}
                   />
-                  <span>{squad.teamName}</span>
+                  <span>
+                    {squad.teamName}
+                    <LeftToPlayOutsideAfter count={squad.leftToPlayCount} />
+                  </span>
                 </h3>
                 <div className="live-squad-meta tabular">
                   {liveGwDisplayTotal(squad) != null ? (
