@@ -1,4 +1,9 @@
-import { useMemo, useState, useCallback } from 'react';
+import {
+  useMemo,
+  useState,
+  useCallback,
+  useSyncExternalStore,
+} from 'react';
 import { TeamAvatar } from './TeamAvatar';
 import { useLiveScores } from './useLiveScores';
 
@@ -11,6 +16,32 @@ function livePickMinsCellClass(r) {
   if (m === 0 && r.clubGwFixturesFinished === true) return 'live-pick-cell--red';
   if (m > 1 && m < 60) return 'live-pick-cell--yellow';
   return '';
+}
+
+/** Matches `live-picks-table-wrap--lineup-portrait` CSS breakpoint. */
+const PORTRAIT_LINEUP_MQ = '(max-width: 560px) and (orientation: portrait)';
+
+function usePortraitLineupMatch() {
+  const subscribe = useCallback((onChange) => {
+    if (typeof window === 'undefined') return () => {};
+    const mq = window.matchMedia(PORTRAIT_LINEUP_MQ);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  const getSnapshot = useCallback(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia(PORTRAIT_LINEUP_MQ).matches;
+  }, []);
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
+}
+
+/** Portrait lineup: if more than two name tokens, show first + last only. */
+function playerNameLineupPortrait(displayName, webName) {
+  const raw = String(displayName ?? webName ?? '').trim();
+  if (!raw) return '—';
+  const parts = raw.split(/\s+/).filter(Boolean);
+  if (parts.length <= 2) return raw;
+  return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
 /** DC cell: DEF ≥10, MID/FWD ≥12 (FPL defensive contribution count) */
@@ -48,6 +79,7 @@ function KitThumb({ shirtUrl, badgeUrl, teamShort }) {
 }
 
 function PicksTable({ rows }) {
+  const portraitLineup = usePortraitLineupMatch();
   if (!rows.length) return <p className="muted muted--tight">No picks</p>;
   return (
     <div className="table-scroll">
@@ -126,6 +158,10 @@ function PicksTable({ rows }) {
         <tbody>
           {rows.map((r) => {
             const minsTone = livePickMinsCellClass(r);
+            const fullLabel = `${r.displayName ?? r.web_name} · #${r.element}${r.teamName ? ` · ${r.teamName}` : ''}`;
+            const shownName = portraitLineup
+              ? playerNameLineupPortrait(r.displayName, r.web_name)
+              : r.displayName ?? r.web_name;
             return (
             <tr key={`${r.pickPosition}-${r.element}`}>
               <td className="live-picks-col-player">
@@ -137,10 +173,13 @@ function PicksTable({ rows }) {
                   />
                   <div className="live-player-text">
                     <div
-                      className="live-player-name"
-                      title={`${r.web_name} · #${r.element}${r.teamName ? ` · ${r.teamName}` : ''}`}
+                      className={
+                        'live-player-name' +
+                        (portraitLineup ? ' live-player-name--lineup-portrait' : '')
+                      }
+                      title={fullLabel}
                     >
-                      {r.displayName ?? r.web_name}
+                      {shownName}
                     </div>
                   </div>
                 </div>
@@ -273,11 +312,13 @@ function SquadLineupPanel({ squad }) {
         </div>
       ) : null}
       <h4 className="live-lineup-heading">Starting XI</h4>
-      <div className="live-picks-table-wrap live-picks-table-wrap--starting-xi-portrait">
+      <div className="live-picks-table-wrap live-picks-table-wrap--lineup-portrait">
         <PicksTable rows={squad.starters} />
       </div>
       <h4 className="live-lineup-heading live-lineup-heading--bench">Bench</h4>
-      <PicksTable rows={squad.bench} />
+      <div className="live-picks-table-wrap live-picks-table-wrap--lineup-portrait">
+        <PicksTable rows={squad.bench} />
+      </div>
     </>
   );
 }

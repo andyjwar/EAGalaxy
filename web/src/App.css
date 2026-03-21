@@ -1976,82 +1976,101 @@ button.live-fixture-banner--toggle {
   line-height: 1.2;
 }
 
-/* Starting XI only: portrait phones — badge + name, Mins, Pts (no horizontal scroll) */
+/* Lineup tables (Starting XI + bench): portrait phones — short names, Mins / DC / ⚽ / 🍑 / Pts */
 @media (max-width: 560px) and (orientation: portrait) {
-  .live-picks-table-wrap--starting-xi-portrait .table-scroll {
+  .live-picks-table-wrap--lineup-portrait .table-scroll {
     overflow-x: visible;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table {
+  .live-picks-table-wrap--lineup-portrait .live-picks-table {
     min-width: 0;
     width: 100%;
-    font-size: 0.76rem;
+    font-size: 0.68rem;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-pos,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-dc,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-goals,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-assists,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-alarm,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-bonus {
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-pos,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-alarm,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-bonus {
     display: none;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table thead th.live-picks-col-pos,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table thead th.live-picks-col-dc,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table thead th.live-picks-col-goals,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table thead th.live-picks-col-assists,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table thead th.live-picks-col-alarm,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table thead th.live-picks-col-bonus,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table tbody td.live-picks-col-pos,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table tbody td.live-picks-col-dc,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table tbody td.live-picks-col-goals,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table tbody td.live-picks-col-assists,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table tbody td.live-picks-col-alarm,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table tbody td.live-picks-col-bonus {
+  .live-picks-table-wrap--lineup-portrait .live-picks-table thead th.live-picks-col-pos,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table thead th.live-picks-col-alarm,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table thead th.live-picks-col-bonus,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table tbody td.live-picks-col-pos,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table tbody td.live-picks-col-alarm,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table tbody td.live-picks-col-bonus {
     display: none;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-player {
-    width: 62%;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-player {
+    width: 28%;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-mins {
-    width: 2.5rem;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-mins {
+    width: 1.85rem;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table col.live-picks-col-pts {
-    width: 2.75rem;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-dc {
+    width: 1.65rem;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table th,
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table td {
-    padding: 5px 6px;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-goals,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-assists {
+    width: 1.55rem;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-picks-table th {
-    font-size: 0.65rem;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table col.live-picks-col-pts {
+    width: 2rem;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-player-cell {
-    align-items: center;
-    gap: 6px;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table th,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table td {
+    padding: 4px 3px;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-kit-img {
-    width: 22px;
-    height: 28px;
-  }
-
-  .live-picks-table-wrap--starting-xi-portrait .live-kit-fallback {
-    width: 22px;
-    height: 22px;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table th {
     font-size: 0.58rem;
   }
 
-  .live-picks-table-wrap--starting-xi-portrait .live-player-name {
-    font-size: 0.76rem;
+  .live-picks-table-wrap--lineup-portrait .live-picks-table th.live-picks-col-goals,
+  .live-picks-table-wrap--lineup-portrait .live-picks-table th.live-picks-col-assists {
+    text-transform: none;
+    font-size: 0.78rem;
+    line-height: 1;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .live-picks-table-wrap--lineup-portrait .live-picks-table th.live-picks-col-dc {
+    font-size: 0.52rem;
+    letter-spacing: 0;
+  }
+
+  .live-picks-table-wrap--lineup-portrait .live-player-cell {
+    align-items: center;
+    gap: 5px;
+  }
+
+  .live-picks-table-wrap--lineup-portrait .live-kit-img {
+    width: 20px;
+    height: 26px;
+  }
+
+  .live-picks-table-wrap--lineup-portrait .live-kit-fallback {
+    width: 20px;
+    height: 20px;
+    font-size: 0.52rem;
+  }
+
+  .live-picks-table-wrap--lineup-portrait .live-player-name {
+    font-size: 0.68rem;
     font-weight: 700;
+  }
+
+  .live-picks-table-wrap--lineup-portrait .live-player-name--lineup-portrait {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
