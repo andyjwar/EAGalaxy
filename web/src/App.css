@@ -58,7 +58,7 @@
 .dashboard-layout--with-nav {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto;
-  /* One row-gap for title → nav and nav → content (e.g. Hall of Champions) */
+  /* One row-gap for title → nav and nav → content */
   gap: 8px 0;
   align-items: stretch;
 }
@@ -75,7 +75,7 @@
   margin-bottom: 0;
 }
 
-/* Row 2: section tabs in one horizontal row (above Hall of Champions & rest) */
+/* Row 2: section tabs */
 .dashboard-layout--with-nav > .dashboard-nav {
   grid-column: 1;
   grid-row: 2;
@@ -2857,6 +2857,30 @@ button.live-fixture-banner--toggle {
 
 .standings-table tbody tr:has(+ tr.standings-row--divider-above) td {
   border-bottom: none;
+}
+
+/* Portrait phones: compact standings (#, Team, PL, For, PTS) — landscape & desktop keep full table */
+@media (orientation: portrait) {
+  .standings-table .col-wdl,
+  .standings-table .col-faced,
+  .standings-table .col-gd,
+  .standings-table .col-form,
+  .standings-table .col-next {
+    display: none;
+  }
+
+  .standings-table th,
+  .standings-table td {
+    padding: 10px 6px;
+  }
+
+  .standings-table {
+    font-size: 0.82rem;
+  }
+
+  .standings-table thead th {
+    font-size: 0.68rem;
+  }
 }
 
 .tabular {

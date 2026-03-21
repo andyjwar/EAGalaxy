@@ -274,7 +274,7 @@ function App() {
   const [waiverOutTeamFilter, setWaiverOutTeamFilter] = useState('all')
   const [waiverOutGwFilter, setWaiverOutGwFilter] = useState('all')
   const [waiverGwTableMode, setWaiverGwTableMode] = useState('out')
-  const [dashboardView, setDashboardView] = useState('standings') // standings | waivers | trades | live
+  const [dashboardView, setDashboardView] = useState('standings') // standings | waivers | trades | live | hall
   const [liveGw, setLiveGw] = useState(null)
   /** Draft bootstrap `events.current` — default Live tab GW when user has not chosen one. */
   const [fplLiveLandingGw, setFplLiveLandingGw] = useState(null)
@@ -644,11 +644,24 @@ function App() {
             </span>
             <span className="dashboard-nav__label">Live Scoring</span>
           </button>
+          <button
+            type="button"
+            className={
+              'dashboard-nav__btn' +
+              (dashboardView === 'hall' ? ' dashboard-nav__btn--active' : '')
+            }
+            onClick={() => setDashboardView('hall')}
+            aria-current={dashboardView === 'hall' ? 'page' : undefined}
+          >
+            <span className="dashboard-nav__emoji" aria-hidden="true">
+              🏆
+            </span>
+            <span className="dashboard-nav__label">Hall of Champions</span>
+          </button>
         </nav>
         <div className="dashboard-content">
           {dashboardView === 'standings' && (
             <>
-              <HallOfChampions logoMap={teamLogoMap} />
               <section
                 className="tile tile--standings"
                 aria-labelledby="standings-heading"
@@ -664,10 +677,10 @@ function App() {
                   <tr>
                     <th className="col-rank">#</th>
                     <th className="col-team">Team</th>
-                    <th className="col-num">PL</th>
-                    <th className="col-num">W</th>
-                    <th className="col-num">D</th>
-                    <th className="col-num">L</th>
+                    <th className="col-num col-pl">PL</th>
+                    <th className="col-num col-wdl">W</th>
+                    <th className="col-num col-wdl">D</th>
+                    <th className="col-num col-wdl">L</th>
                     <th
                       className="col-num col-for"
                       title="Your team’s total FPL points in every H2H gameweek"
@@ -680,7 +693,7 @@ function App() {
                     >
                       Faced
                     </th>
-                    <th className="col-num">GD</th>
+                    <th className="col-num col-gd">GD</th>
                     <th className="col-num col-pts">PTS</th>
                     <th className="col-form">Form</th>
                     <th className="col-next">Nxt</th>
@@ -713,17 +726,17 @@ function App() {
                             <span className="team-name team-name--sidebar">{row.teamName}</span>
                           </span>
                         </td>
-                        <td className="col-num">{row.pl}</td>
-                        <td className="col-num">{row.matches_won}</td>
-                        <td className="col-num">{row.matches_drawn}</td>
-                        <td className="col-num">{row.matches_lost}</td>
+                        <td className="col-num col-pl">{row.pl}</td>
+                        <td className="col-num col-wdl">{row.matches_won}</td>
+                        <td className="col-num col-wdl">{row.matches_drawn}</td>
+                        <td className="col-num col-wdl">{row.matches_lost}</td>
                         <td className="col-num col-for tabular" title="Your points for, all GWs">
                           {row.gf}
                         </td>
                         <td className="col-num col-faced tabular" title="Opponent points faced, all GWs">
                           {row.ga}
                         </td>
-                        <td className="col-num tabular">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                        <td className="col-num col-gd tabular">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
                         <td className="col-num col-pts tabular">
                           <strong>{row.total}</strong>
                         </td>
@@ -1006,6 +1019,8 @@ function App() {
               </div>
             </>
           )}
+
+          {dashboardView === 'hall' && <HallOfChampions logoMap={teamLogoMap} />}
 
           {dashboardView === 'waivers' && (
             <div className="dashboard-stack">
