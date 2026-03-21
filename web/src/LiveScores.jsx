@@ -329,9 +329,9 @@ export function LiveScores({
 
         <div className="live-toolbar">
           <label className="live-gw-label">
-            <span className="muted">Gameweek</span>
             <select
               className="live-gw-select"
+              aria-label="Gameweek"
               value={gameweek}
               onChange={(e) => onGameweekChange(Number(e.target.value))}
             >

@@ -8,8 +8,8 @@ import { TeamAvatar } from './TeamAvatar'
 import { LiveScores } from './LiveScores'
 import './App.css'
 
-const LEAGUE_TITLE = 'The Tri-Continental League of Titans'
-const LEAGUE_SEASON_SUB = '2025/26'
+const LEAGUE_TITLE_ABBR = 'TCLOT'
+const LEAGUE_TITLE = 'Tri-Continental League of Titans, 2025-26 season'
 
 /** Past champions — optional `entryId` (team-logos-web), or `bannerImage` (fills entire banner sheet) */
 const HALL_OF_CHAMPIONS = [
@@ -107,19 +107,26 @@ function HallOfChampions({ logoMap }) {
 function FormCircles({ form }) {
   return (
     <div className="form-circles" aria-label="Last matches form">
-      {form.map((r, i) =>
-        r == null ? (
-          <span key={i} className="form-dot form-dot--empty" title="—" />
-        ) : (
+      {form.map((r, i) => {
+        if (r == null) {
+          return <span key={i} className="form-dot form-dot--empty" aria-label="No result" />
+        }
+        const result = typeof r === 'object' ? r.result : r
+        const tooltip =
+          typeof r === 'object' && r.opponentName
+            ? `GW${r.event} · ${r.scoreStr} · vs ${r.opponentName}`
+            : result === 'W' ? 'Win' : result === 'L' ? 'Loss' : 'Draw'
+        return (
           <span
             key={i}
-            className={`form-dot form-dot--${r === 'W' ? 'win' : r === 'L' ? 'loss' : 'draw'}`}
-            title={r === 'W' ? 'Win' : r === 'L' ? 'Loss' : 'Draw'}
+            className={`form-dot form-dot--${result === 'W' ? 'win' : result === 'L' ? 'loss' : 'draw'}`}
+            data-tooltip={tooltip}
+            aria-label={tooltip}
           >
-            {r}
+            {result}
           </span>
         )
-      )}
+      })}
     </div>
   )
 }
@@ -389,6 +396,15 @@ function App() {
     return { gw: maxGw, groups }
   }, [data?.waiverOutGwRows, data?.teamsForFormSelect])
 
+  /** First 4 teams left of title, next/last 4 right (no overlap; >8 teams → first + last 4). */
+  const heroLogoSides = useMemo(() => {
+    const teams = data?.teamsForFormSelect ?? []
+    const left = teams.slice(0, 4)
+    const right =
+      teams.length > 8 ? teams.slice(-4) : teams.slice(4, 8)
+    return { left, right }
+  }, [data?.teamsForFormSelect])
+
   if (loading) {
     return (
       <div className="app fotmob">
@@ -402,8 +418,10 @@ function App() {
       <div className="app fotmob">
         <header className="page-header page-header--centered">
           <section className="tile tile--title-banner" aria-label="League">
-            <h1 className="page-title-main">{LEAGUE_TITLE}</h1>
-            <h2 className="page-title-season">{LEAGUE_SEASON_SUB}</h2>
+            <h1 className="page-title-main">
+              <span className="page-title-main__abbr">{LEAGUE_TITLE_ABBR}</span>
+            </h1>
+            <p className="page-title-sub">{LEAGUE_TITLE}</p>
             <p className="brand-sub brand-sub--in-title-tile">FPL Draft · Head-to-head</p>
           </section>
         </header>
@@ -505,17 +523,51 @@ function App() {
       <main className="dashboard-layout dashboard-layout--with-nav">
         <div className="dashboard-page-hero">
           <header className="page-header page-header--centered">
-            <section className="tile tile--title-banner" aria-label="League">
-              <h1 className="page-title-main">{LEAGUE_TITLE}</h1>
-              <h2 className="page-title-season">{LEAGUE_SEASON_SUB}</h2>
-            </section>
-            <div className="header-team-strip" aria-label="League teams">
-              {teamsForFormSelect.map((t) => (
-                <div key={t.id} className="header-team-strip__item" title={t.teamName}>
-                  <TeamAvatar entryId={t.id} name={t.teamName} size="header" logoMap={teamLogoMap} />
+            <section
+              className="tile tile--title-banner tile--title-with-flank-logos"
+              aria-label="League"
+            >
+              <div className="title-hero-row">
+                <div className="title-hero-row__logos title-hero-row__logos--left">
+                  {heroLogoSides.left.map((t) => (
+                    <div
+                      key={t.id}
+                      className="title-hero-row__logo-wrap"
+                      title={t.teamName}
+                    >
+                      <TeamAvatar
+                        entryId={t.id}
+                        name={t.teamName}
+                        size="lg"
+                        logoMap={teamLogoMap}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+                <div className="title-hero-row__title">
+                  <h1 className="page-title-main">
+                    <span className="page-title-main__abbr">{LEAGUE_TITLE_ABBR}</span>
+                  </h1>
+                  <p className="page-title-sub">{LEAGUE_TITLE}</p>
+                </div>
+                <div className="title-hero-row__logos title-hero-row__logos--right">
+                  {heroLogoSides.right.map((t) => (
+                    <div
+                      key={t.id}
+                      className="title-hero-row__logo-wrap"
+                      title={t.teamName}
+                    >
+                      <TeamAvatar
+                        entryId={t.id}
+                        name={t.teamName}
+                        size="lg"
+                        logoMap={teamLogoMap}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
             {fetchFailedDemo && (
               <div className="data-banner data-banner--error" role="alert">
                 <strong>League file didn’t load</strong> (wrong URL or deploy). Showing demo only.{' '}
@@ -672,7 +724,7 @@ function App() {
                           {row.ga}
                         </td>
                         <td className="col-num tabular">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                        <td className="col-num col-pts">
+                        <td className="col-num col-pts tabular">
                           <strong>{row.total}</strong>
                         </td>
                         <td className="col-form">
@@ -1409,22 +1461,6 @@ function App() {
                 <h2 id="trades-heading" className="tile-title tile-title--sm">
                   Trades
                 </h2>
-                <p className="tile-hint muted tile-hint--tight">
-                  Processed trades only (FPL state <code>p</code>). <strong>Pts</strong> = FPL total for
-                  the acquired player from <strong>GW a–b</strong> on that manager&apos;s squad (from
-                  trade week until first drop, or last finished GW if still there). Club kit ={' '}
-                  player&apos;s Premier League team. Names come from today&apos;s FPL data for the{' '}
-                  <strong>element id</strong> stored in the official draft trade feed — if that ever
-                  disagrees with what you remember, compare trade id / ids on{' '}
-                  <a
-                    href="https://draft.premierleague.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    draft.premierleague.com
-                  </a>
-                  .
-                </p>
                 {tradesPanelRows?.length ? (
                   <div className="trades-list">
                     {tradesPanelRows.map((trade) => (

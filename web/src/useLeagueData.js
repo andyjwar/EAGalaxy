@@ -284,8 +284,8 @@ function resultForEntry(m, entryId) {
   return 'D';
 }
 
-/** Last N results oldest→newest for form circles */
-function formSequence(entryId, finishedMatches, n) {
+/** Last N results oldest→newest for form circles — returns rich objects */
+function formSequence(entryId, finishedMatches, n, teams) {
   const mine = finishedMatches.filter(
     (m) => m.league_entry_1 === entryId || m.league_entry_2 === entryId
   );
@@ -294,7 +294,20 @@ function formSequence(entryId, finishedMatches, n) {
       a.event - b.event || (a.id ?? 0) - (b.id ?? 0) || String(a).localeCompare(String(b))
   );
   const last = mine.slice(-n);
-  return last.map((m) => resultForEntry(m, entryId));
+  return last.map((m) => {
+    const result = resultForEntry(m, entryId);
+    const myPts =
+      m.league_entry_1 === entryId ? m.league_entry_1_points : m.league_entry_2_points;
+    const oppPts =
+      m.league_entry_1 === entryId ? m.league_entry_2_points : m.league_entry_1_points;
+    const oppId = opponentId(m, entryId);
+    return {
+      result,
+      scoreStr: `${myPts} – ${oppPts}`,
+      opponentName: teams[oppId]?.entry_name ?? '?',
+      event: m.event,
+    };
+  });
 }
 
 function displayEntryName(e) {
@@ -511,7 +524,7 @@ function processLeagueData(raw, extras = {}) {
       (s.matches_won ?? 0) + (s.matches_drawn ?? 0) + (s.matches_lost ?? 0);
     const gf = s.points_for ?? 0;
     const ga = s.points_against ?? 0;
-    const seq = formSequence(eid, finished, FORM_LAST_N);
+    const seq = formSequence(eid, finished, FORM_LAST_N, teams);
     while (seq.length < FORM_LAST_N) seq.unshift(null);
     const next = nextOpponent(eid, matches, teams);
     return {
