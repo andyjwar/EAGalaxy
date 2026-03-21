@@ -184,11 +184,11 @@ const LEFT_TO_PLAY_TITLE =
   'Starting XI players on 0 minutes whose club still has a Premier League fixture to finish this gameweek';
 
 /** Bracketed count after the team name (both sides — keeps layout symmetrical). */
-function LeftToPlayOutsideAfter({ count }) {
+function LeftToPlayOutsideAfter({ count, leadingSpace = true }) {
   if (typeof count !== 'number') return null;
   return (
     <span className="live-left-to-play tabular" title={LEFT_TO_PLAY_TITLE}>
-      {' '}
+      {leadingSpace ? ' ' : null}
       ({count})
     </span>
   );
@@ -246,10 +246,11 @@ function isLikelyLocalDev() {
 }
 
 /**
- * @param {{ teams: Array<{ id: number, teamName: string, fplEntryId: number | null }>, matches?: Array<{ event: number, league_entry_1: number, league_entry_2: number, finished?: boolean, league_entry_1_points?: number, league_entry_2_points?: number }>, gameweek: number, onGameweekChange: (n: number) => void, onBootstrapLiveMeta?: (meta: { currentGw: number | null }) => void, teamLogoMap: object }}
+ * @param {{ teams: Array<{ id: number, teamName: string, fplEntryId: number | null }>, tableRows?: Array<object>, matches?: Array<{ event: number, league_entry_1: number, league_entry_2: number, finished?: boolean, league_entry_1_points?: number, league_entry_2_points?: number }>, gameweek: number, onGameweekChange: (n: number) => void, onBootstrapLiveMeta?: (meta: { currentGw: number | null }) => void, teamLogoMap: object }}
  */
 export function LiveScores({
   teams,
+  tableRows = [],
   matches = [],
   gameweek,
   onGameweekChange,
@@ -304,6 +305,19 @@ export function LiveScores({
     }
     return m;
   }, [squads]);
+
+  /** League table order (standing position) with this GW’s live points merged in. */
+  const liveStandingsRows = useMemo(() => {
+    if (!Array.isArray(tableRows) || tableRows.length === 0) return [];
+    const enriched = tableRows.map((row) => {
+      const squad = squadByLeagueEntry.get(row.league_entry);
+      const liveGw = liveGwDisplayTotal(squad);
+      const ltp =
+        typeof squad?.leftToPlayCount === 'number' ? squad.leftToPlayCount : null;
+      return { ...row, liveGw, ltp };
+    });
+    return [...enriched].sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
+  }, [tableRows, squadByLeagueEntry]);
 
   const pairedLeagueEntryIds = useMemo(() => {
     const s = new Set();
@@ -419,6 +433,130 @@ export function LiveScores({
         ) : null}
       </section>
 
+      <section
+        className="tile tile--compact tile--live-standings"
+        aria-labelledby="live-standings-heading"
+      >
+        <div className="tile-head-row tile-head-row--tight">
+          <h2 id="live-standings-heading" className="tile-title tile-title--sm">
+            Live standings
+          </h2>
+          <span className="league-pill league-pill--sm">GW {gameweek}</span>
+        </div>
+        <p className="muted muted--tight live-standings-blurb">
+          Same order as the league table. GW shows live points for this gameweek (starter XI).
+        </p>
+        {!tableRows?.length ? (
+          <p className="muted muted--tight">No standings data.</p>
+        ) : (
+          <div className="table-scroll table-scroll--standings-open">
+            <table className="standings-table standings-table--sidebar standings-table--live">
+              <thead>
+                <tr>
+                  <th className="col-rank" title="League table position">
+                    #
+                  </th>
+                  <th className="col-team">Team</th>
+                  <th className="col-num col-pl">PL</th>
+                  <th className="col-num col-wdl">W</th>
+                  <th className="col-num col-wdl">D</th>
+                  <th className="col-num col-wdl">L</th>
+                  <th
+                    className="col-num col-for"
+                    title="Your team’s total FPL points across all H2H gameweeks"
+                  >
+                    For
+                  </th>
+                  <th className="col-num col-faced">Faced</th>
+                  <th className="col-num col-gd">GD</th>
+                  <th
+                    className="col-num col-live-gw"
+                    title="Live FPL points for this gameweek (starter XI; bonus column logic matches lineup view)"
+                  >
+                    GW
+                  </th>
+                  <th className="col-num col-ltp" title={LEFT_TO_PLAY_TITLE}>
+                    LTP
+                  </th>
+                  <th className="col-num col-pts">PTS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {liveStandingsRows.map((row) => {
+                  const isLeader = row.rank === 1;
+                  const rowClass = [
+                    isLeader ? 'row-highlight' : '',
+                    row.rank === 1 ? 'standings-row--divider-below' : '',
+                    row.rank === 8
+                      ? 'standings-row--divider-above standings-row--8th'
+                      : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ');
+                  return (
+                    <tr key={row.league_entry} className={rowClass || undefined}>
+                      <td className="col-rank">
+                        {row.rank === 8 ? (
+                          <span
+                            role="img"
+                            className="standings-rank-8"
+                            aria-label="8"
+                          >
+                            🧩
+                          </span>
+                        ) : (
+                          row.rank
+                        )}
+                      </td>
+                      <td className="col-team">
+                        <span className="team-cell">
+                          <TeamAvatar
+                            entryId={row.league_entry}
+                            name={row.teamName}
+                            size="sm"
+                            logoMap={teamLogoMap}
+                          />
+                          <span className="team-name team-name--sidebar">
+                            {row.teamName}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="col-num col-pl">{row.pl}</td>
+                      <td className="col-num col-wdl">{row.matches_won}</td>
+                      <td className="col-num col-wdl">{row.matches_drawn}</td>
+                      <td className="col-num col-wdl">{row.matches_lost}</td>
+                      <td className="col-num col-for tabular" title="Your points for, all GWs">
+                        {row.gf}
+                      </td>
+                      <td className="col-num col-faced tabular">{row.ga}</td>
+                      <td className="col-num col-gd tabular">
+                        {row.gd > 0 ? `+${row.gd}` : row.gd}
+                      </td>
+                      <td className="col-num col-live-gw tabular">
+                        {row.liveGw != null ? (
+                          <strong className="live-standings-gw-val">{row.liveGw}</strong>
+                        ) : (
+                          <span className="muted">—</span>
+                        )}
+                      </td>
+                      <td className="col-num col-ltp tabular">
+                        {row.ltp != null ? row.ltp : '—'}
+                      </td>
+                      <td className="col-num col-pts tabular">
+                        <strong>{row.total}</strong>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="table-foot muted standings-landscape-hint">
+          On mobile, turn your device to landscape for the full table.
+        </p>
+      </section>
+
       {useFixtureLayout
         ? gwMatches.map((m) => {
             const homeId = Number(m.league_entry_1);
@@ -458,7 +596,7 @@ export function LiveScores({
                   aria-expanded={lineupOpen}
                   aria-controls={fixtureBodyId}
                 >
-                  <span className="live-fixture-chevron" aria-hidden>
+                  <span className="live-fixture-chevron live-fixture-chevron--desktop" aria-hidden>
                     {lineupOpen ? '▼' : '▶'}
                   </span>
                   <span className="live-fixture-banner__row">
@@ -470,15 +608,25 @@ export function LiveScores({
                         logoMap={teamLogoMap}
                       />
                       <span className="live-fixture-banner__team-text live-fixture-banner__team-text--home">
-                        <span className="live-fixture-banner__name-line">
-                          <span
-                            className={`live-fixture-banner__name ${homeLead ? 'live-fixture-banner__name--lead' : ''}`}
-                          >
-                            {homeName}
+                        <span className="live-fixture-banner__team-inner">
+                          <span className="live-fixture-banner__name-line">
+                            <span
+                              className={`live-fixture-banner__name ${homeLead ? 'live-fixture-banner__name--lead' : ''}`}
+                            >
+                              {homeName}
+                            </span>
                           </span>
-                          <LeftToPlayOutsideAfter count={homeLtp} />
+                          {typeof homeLtp === 'number' ? (
+                            <span className="live-fixture-banner__ltp-line">
+                              <LeftToPlayOutsideAfter count={homeLtp} leadingSpace={false} />
+                            </span>
+                          ) : null}
                         </span>
                       </span>
+                    </span>
+
+                    <span className="live-fixture-banner__vs-sep" aria-hidden="true">
+                      vs
                     </span>
 
                     <span className="live-fixture-banner__scorebox" aria-label="Gameweek points comparison">
@@ -496,13 +644,19 @@ export function LiveScores({
 
                     <span className="live-fixture-banner__team live-fixture-banner__team--away">
                       <span className="live-fixture-banner__team-text live-fixture-banner__team-text--away">
-                        <span className="live-fixture-banner__name-line">
-                          <span
-                            className={`live-fixture-banner__name ${awayLead ? 'live-fixture-banner__name--lead' : ''}`}
-                          >
-                            {awayName}
+                        <span className="live-fixture-banner__team-inner">
+                          <span className="live-fixture-banner__name-line">
+                            <span
+                              className={`live-fixture-banner__name ${awayLead ? 'live-fixture-banner__name--lead' : ''}`}
+                            >
+                              {awayName}
+                            </span>
                           </span>
-                          <LeftToPlayOutsideAfter count={awayLtp} />
+                          {typeof awayLtp === 'number' ? (
+                            <span className="live-fixture-banner__ltp-line">
+                              <LeftToPlayOutsideAfter count={awayLtp} leadingSpace={false} />
+                            </span>
+                          ) : null}
                         </span>
                       </span>
                       <TeamAvatar
@@ -511,6 +665,12 @@ export function LiveScores({
                         size="sm"
                         logoMap={teamLogoMap}
                       />
+                    </span>
+                  </span>
+                  {/* Mobile: bottom affordance — ▼ = collapsed (lineup below), ▲ = expanded (hide). */}
+                  <span className="live-fixture-banner__expand-foot">
+                    <span className="live-fixture-chevron live-fixture-chevron--mobile" aria-hidden>
+                      {!lineupOpen ? '▼' : '▲'}
                     </span>
                   </span>
                 </button>

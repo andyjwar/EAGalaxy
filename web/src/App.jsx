@@ -1473,6 +1473,7 @@ function App() {
           {dashboardView === 'live' && (
             <LiveScores
               teams={teamsForFormSelect}
+              tableRows={tableRows}
               matches={matches ?? []}
               gameweek={liveGameweek}
               onGameweekChange={setLiveGw}

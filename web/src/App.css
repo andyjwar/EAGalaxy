@@ -1408,6 +1408,10 @@ button.live-fixture-banner--toggle {
   align-self: center;
 }
 
+.live-fixture-banner__expand-foot {
+  display: none;
+}
+
 /* Equal side columns so the score lines up across every fixture row */
 .live-fixture-banner__row {
   flex: 1;
@@ -1448,6 +1452,28 @@ button.live-fixture-banner--toggle {
   justify-content: center;
 }
 
+.live-fixture-banner__team-inner {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  max-width: 100%;
+  column-gap: 4px;
+  row-gap: 0;
+}
+
+.live-fixture-banner__team--home .live-fixture-banner__team-inner {
+  justify-content: flex-end;
+}
+
+.live-fixture-banner__team--away .live-fixture-banner__team-inner {
+  justify-content: flex-start;
+}
+
+.live-fixture-banner__ltp-line {
+  display: inline;
+}
+
 /* Name + (left to play) share one baseline; edge aligns toward the score */
 .live-fixture-banner__team-text--home {
   align-items: flex-end;
@@ -1465,6 +1491,7 @@ button.live-fixture-banner--toggle {
   align-items: baseline;
   max-width: 100%;
   gap: 0;
+  min-width: 0;
 }
 
 .live-fixture-banner__team--home .live-fixture-banner__name-line {
@@ -1479,7 +1506,8 @@ button.live-fixture-banner--toggle {
   font-weight: 700;
   font-size: 0.95rem;
   line-height: 1.25;
-  word-break: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .live-fixture-banner__name--lead {
@@ -1536,6 +1564,106 @@ button.live-fixture-banner--toggle {
   font-size: 1rem;
   font-weight: 700;
   opacity: 0.5;
+}
+
+/* Between team columns on mobile only; hidden on desktop (score stays in the middle). */
+.live-fixture-banner__vs-sep {
+  display: none;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--fm-muted, #6b7280);
+  opacity: 0.85;
+  padding: 0 2px;
+  line-height: 1.2;
+}
+
+@media (max-width: 560px) {
+  button.live-fixture-banner--toggle {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .live-fixture-chevron--desktop {
+    display: none;
+  }
+
+  .live-fixture-banner__expand-foot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px solid var(--fm-border);
+  }
+
+  .live-fixture-chevron--mobile {
+    font-size: 0.75rem;
+    opacity: 0.55;
+    line-height: 1;
+  }
+
+  .live-fixture-banner__row {
+    flex: 0 1 auto;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'home vs away'
+      'score score score';
+    column-gap: 8px;
+    row-gap: 10px;
+    align-items: start;
+  }
+
+  .live-fixture-banner__team--home {
+    grid-area: home;
+    justify-self: stretch;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .live-fixture-banner__vs-sep {
+    display: block;
+    grid-area: vs;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .live-fixture-banner__team--away {
+    grid-area: away;
+    justify-self: stretch;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .live-fixture-banner__scorebox {
+    grid-area: score;
+    min-width: 0;
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .live-fixture-banner__team-inner {
+    flex-direction: column;
+    align-items: flex-end;
+    row-gap: 3px;
+    column-gap: 0;
+    width: 100%;
+  }
+
+  .live-fixture-banner__team--away .live-fixture-banner__team-inner {
+    align-items: flex-start;
+  }
+
+  .live-fixture-banner__ltp-line {
+    display: block;
+    font-size: 0.88em;
+  }
 }
 
 .live-fixture-split {
@@ -2855,6 +2983,19 @@ button.live-fixture-banner--toggle {
   font-size: 0.78rem;
 }
 
+/* Live tab: standings + GW live / LTP */
+.standings-table--live .col-live-gw {
+  text-align: right;
+}
+
+.standings-table--live .live-standings-gw-val {
+  color: var(--fm-accent);
+}
+
+.tile--live-standings .live-standings-blurb {
+  margin-bottom: 10px;
+}
+
 .standings-table .col-form {
   text-align: center;
   padding-left: 12px;
@@ -2920,6 +3061,10 @@ button.live-fixture-banner--toggle {
   .standings-table .col-gd,
   .standings-table .col-form,
   .standings-table .col-next {
+    display: none;
+  }
+
+  .standings-table--live .col-ltp {
     display: none;
   }
 
