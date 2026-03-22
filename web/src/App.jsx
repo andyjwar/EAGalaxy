@@ -3,6 +3,7 @@ import {
   LEAGUE_TITLE,
   LEAGUE_TITLE_ABBR,
   showDashboardHall,
+  showDashboardPlayoff,
   showDashboardTrades,
 } from './siteFeatures'
 import {
@@ -12,6 +13,7 @@ import {
 } from './useLeagueData'
 import { TeamAvatar } from './TeamAvatar'
 import { LiveScores } from './LiveScores'
+import { PlayOffBracket } from './PlayOffBracket'
 import './App.css'
 
 /** Past champions — optional `entryId` (team-logos-web), or `bannerImage` (fills entire banner sheet) */
@@ -277,7 +279,7 @@ function App() {
   const [waiverOutTeamFilter, setWaiverOutTeamFilter] = useState('all')
   const [waiverOutGwFilter, setWaiverOutGwFilter] = useState('all')
   const [waiverGwTableMode, setWaiverGwTableMode] = useState('out')
-  const [dashboardView, setDashboardView] = useState('standings') // standings | waivers | trades | live | hall
+  const [dashboardView, setDashboardView] = useState('standings') // standings | playoff | waivers | trades | live | hall
   const [liveGw, setLiveGw] = useState(null)
   /** Draft bootstrap `events.current` — default Live tab GW when user has not chosen one. */
   const [fplLiveLandingGw, setFplLiveLandingGw] = useState(null)
@@ -293,8 +295,17 @@ function App() {
     }
     if (dashboardView === 'hall' && !showDashboardHall) {
       setDashboardView('standings')
+      return
     }
-  }, [dashboardView, showDashboardTrades, showDashboardHall])
+    if (dashboardView === 'playoff' && !showDashboardPlayoff) {
+      setDashboardView('standings')
+    }
+  }, [
+    dashboardView,
+    showDashboardTrades,
+    showDashboardHall,
+    showDashboardPlayoff,
+  ])
 
   /** drops-gw-live rows: waivers only (excludes free-agency rows used in Latest Waivers). */
   const waiverOutRowsWaiverOnly = useMemo(
@@ -615,6 +626,22 @@ function App() {
             </span>
             <span className="dashboard-nav__label">Standings &amp; Form</span>
           </button>
+          {showDashboardPlayoff ? (
+            <button
+              type="button"
+              className={
+                'dashboard-nav__btn' +
+                (dashboardView === 'playoff' ? ' dashboard-nav__btn--active' : '')
+              }
+              onClick={() => setDashboardView('playoff')}
+              aria-current={dashboardView === 'playoff' ? 'page' : undefined}
+            >
+              <span className="dashboard-nav__emoji" aria-hidden="true">
+                🏅
+              </span>
+              <span className="dashboard-nav__label">Play Off</span>
+            </button>
+          ) : null}
           <button
             type="button"
             className={
@@ -1027,6 +1054,12 @@ function App() {
               </div>
             </>
           )}
+
+          {showDashboardPlayoff && dashboardView === 'playoff' ? (
+            <div className="dashboard-stack">
+              <PlayOffBracket tableRows={tableRows} teamLogoMap={teamLogoMap} />
+            </div>
+          ) : null}
 
           {showDashboardHall && dashboardView === 'hall' ? (
             <HallOfChampions logoMap={teamLogoMap} />
