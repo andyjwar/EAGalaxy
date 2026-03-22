@@ -419,6 +419,7 @@ function App() {
         <header className="page-header page-header--centered">
           <section className="tile tile--title-banner" aria-label="League">
             <h1 className="page-title-main">
+              <span aria-hidden="true">⚽ </span>
               <span className="page-title-main__abbr">{LEAGUE_TITLE_ABBR}</span>
             </h1>
             <p className="page-title-sub">{LEAGUE_TITLE}</p>
@@ -546,6 +547,7 @@ function App() {
                 </div>
                 <div className="title-hero-row__title">
                   <h1 className="page-title-main">
+                    <span aria-hidden="true">⚽ </span>
                     <span className="page-title-main__abbr">{LEAGUE_TITLE_ABBR}</span>
                   </h1>
                   <p className="page-title-sub">{LEAGUE_TITLE}</p>
